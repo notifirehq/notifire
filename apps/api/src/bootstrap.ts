@@ -19,6 +19,7 @@ const compression = require('compression');
 
 const extendedBodySizeRoutes = [
   '/v1/events',
+  '/v1/events/trigger',
   '/v1/notification-templates',
   '/v1/workflows',
   '/v1/layouts',
