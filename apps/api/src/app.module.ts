@@ -9,7 +9,7 @@ import { ForwardReference } from '@nestjs/common/interfaces/modules/forward-refe
 import { isClerkEnabled } from '@novu/shared';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ApiExcludeController } from '@nestjs/swagger';
-import { usageLimitsWorkflow } from '@novu/notifications';
+import { usageInsightsWorkflow, usageLimitsWorkflow } from '@novu/notifications';
 import packageJson from '../package.json';
 import { SharedModule } from './app/shared/shared.module';
 import { UserModule } from './app/user/user.module';
@@ -49,6 +49,7 @@ import { WorkflowModule } from './app/workflows-v2/workflow.module';
 import { WorkflowModuleV1 } from './app/workflows-v1/workflow-v1.module';
 import { EnvironmentsModuleV1 } from './app/environments-v1/environments-v1.module';
 import { EnvironmentsModule } from './app/environments-v2/environments.module';
+import { InsightsModule } from './app/insights/insights.module';
 
 const enterpriseImports = (): Array<Type | DynamicModule | Promise<DynamicModule> | ForwardReference> => {
   const modules: Array<Type | DynamicModule | Promise<DynamicModule> | ForwardReference> = [];
@@ -115,6 +116,7 @@ const baseModules: Array<Type | DynamicModule | Promise<DynamicModule> | Forward
   WorkflowModule,
   EnvironmentsModule,
   NovuModule,
+  InsightsModule,
 ];
 
 const enterpriseModules = enterpriseImports();
@@ -165,7 +167,7 @@ modules.push(
         process.env.NOVU_STRICT_AUTHENTICATION_ENABLED === 'true',
     }),
     controllerDecorators: [ApiExcludeController()],
-    workflows: [usageLimitsWorkflow],
+    workflows: [usageLimitsWorkflow, usageInsightsWorkflow],
   })
 );
 

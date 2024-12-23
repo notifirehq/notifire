@@ -98,4 +98,9 @@ export const envValidators = {
     VERCEL_REDIRECT_URI: url({ default: 'https://dashboard.novu.co/auth/login' }),
     VERCEL_BASE_URL: url({ default: 'https://api.vercel.com' }),
   }),
+
+  // Mixpanel validators
+  MIXPANEL_SERVICE_ACCOUNT_USERNAME: str({ default: '' }),
+  MIXPANEL_SERVICE_ACCOUNT_SECRET: str({ default: '' }),
+  MIXPANEL_PROJECT_ID: str({ default: '' }),
 } satisfies Record<string, ValidatorSpec<unknown>>;
