@@ -36,6 +36,7 @@ import {
   ValidatePlaceholderUsecase,
 } from './usecases';
 import { BuildPayloadSchema } from './usecases/build-payload-schema/build-payload-schema.usecase';
+import { GenerateSuggestionsUsecase } from './usecases/generate-suggestions';
 import { OverloadContentDataOnWorkflowUseCase } from './usecases/overload-content-data';
 import { PatchStepUsecase } from './usecases/patch-step-data/patch-step.usecase';
 import { PatchWorkflowUsecase } from './usecases/patch-workflow';
@@ -77,6 +78,7 @@ const DAL_REPOSITORIES = [CommunityOrganizationRepository];
     PatchWorkflowUsecase,
     TierRestrictionsValidateUsecase,
     BuildPayloadSchema,
+    GenerateSuggestionsUsecase,
   ],
 })
 export class WorkflowModule implements NestModule {
