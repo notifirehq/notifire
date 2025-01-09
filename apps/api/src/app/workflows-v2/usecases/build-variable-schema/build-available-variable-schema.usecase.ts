@@ -5,13 +5,13 @@ import { Instrument } from '@novu/application-generic';
 import { computeResultSchema } from '../../shared';
 import { BuildAvailableVariableSchemaCommand } from './build-available-variable-schema.command';
 import { parsePayloadSchema } from '../../shared/parse-payload-schema';
-import { BuildPayloadSchemaCommand } from '../build-payload-schema/build-payload-schema.command';
-import { BuildPayloadSchema } from '../build-payload-schema/build-payload-schema.usecase';
+import { BuildSchemasByControlValues } from '../build-payload-schema/build-payload-schema.usecase';
 import { emptyJsonSchema } from '../../util/jsonToSchema';
+import { BuildPayloadSchemaCommand } from '../build-payload-schema/build-payload-schema.command';
 
 @Injectable()
 export class BuildAvailableVariableSchemaUsecase {
-  constructor(private readonly buildPayloadSchema: BuildPayloadSchema) {}
+  constructor(private readonly buildSchemasByControlValues: BuildSchemasByControlValues) {}
 
   async execute(command: BuildAvailableVariableSchemaCommand): Promise<JSONSchemaDto> {
     const { workflow } = command;
@@ -74,7 +74,7 @@ export class BuildAvailableVariableSchemaUsecase {
       return parsePayloadSchema(workflow.payloadSchema, { safe: true }) || emptyJsonSchema();
     }
 
-    return this.buildPayloadSchema.execute(
+    const { payloadSchema } = await this.buildSchemasByControlValues.execute(
       BuildPayloadSchemaCommand.create({
         environmentId: command.environmentId,
         organizationId: command.organizationId,
@@ -83,6 +83,8 @@ export class BuildAvailableVariableSchemaUsecase {
         ...(command.optimisticControlValues ? { controlValues: command.optimisticControlValues } : {}),
       })
     );
+
+    return payloadSchema;
   }
 }
 

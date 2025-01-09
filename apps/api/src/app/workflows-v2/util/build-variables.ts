@@ -41,7 +41,11 @@ export function buildVariables(
   };
 }
 
-function isPropertyAllowed(schema: Record<string, unknown>, propertyPath: string) {
+export function isPropertyAllowed(
+  schema: Record<string, unknown>,
+  propertyPath: string,
+  { strict = true }: { strict?: boolean } = {}
+) {
   let currentSchema = { ...schema };
   if (!currentSchema || typeof currentSchema !== 'object') {
     return false;
@@ -57,7 +61,7 @@ function isPropertyAllowed(schema: Record<string, unknown>, propertyPath: string
       continue;
     }
 
-    if (additionalProperties === true) {
+    if (strict && additionalProperties === true) {
       return true;
     }
 

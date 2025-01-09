@@ -9,11 +9,13 @@ import { transformMailyContentToLiquid } from '../generate-preview/transform-mai
 import { isStringTipTapNode } from '../../util/tip-tap.util';
 
 @Injectable()
-export class BuildPayloadSchema {
+export class BuildSchemasByControlValues {
   constructor(private readonly controlValuesRepository: ControlValuesRepository) {}
 
   @InstrumentUsecase()
-  async execute(command: BuildPayloadSchemaCommand): Promise<JSONSchemaDto> {
+  async execute(
+    command: BuildPayloadSchemaCommand
+  ): Promise<{ payloadSchema: JSONSchemaDto; subscriberSchema: JSONSchemaDto }> {
     const controlValues = await this.getControlValues(command);
     const extractedVariables = await this.extractAllVariables(controlValues);
 
@@ -74,9 +76,9 @@ export class BuildPayloadSchema {
   }
 
   private async buildVariablesSchema(variables: string[]) {
-    const { payload } = keysToObject(variables, { fn: (val) => `{{${val}}}` });
+    const { payload, subscriber } = keysToObject(variables, { fn: (val) => `{{${val}}}` });
 
-    const schema: JSONSchemaDto = {
+    const payloadSchema: JSONSchemaDto = {
       type: 'object',
       properties: {},
       required: [],
@@ -85,14 +87,30 @@ export class BuildPayloadSchema {
 
     if (payload) {
       for (const [key, value] of Object.entries(payload)) {
-        if (schema.properties && schema.required) {
-          schema.properties[key] = determineSchemaType(value);
-          schema.required.push(key);
+        if (payloadSchema.properties && payloadSchema.required) {
+          payloadSchema.properties[key] = determineSchemaType(value);
+          payloadSchema.required.push(key);
         }
       }
     }
 
-    return schema;
+    const subscriberSchema: JSONSchemaDto = {
+      type: 'object',
+      properties: {},
+      required: [],
+      additionalProperties: true,
+    };
+
+    if (subscriber) {
+      for (const [key, value] of Object.entries(subscriber)) {
+        if (subscriberSchema.properties && subscriberSchema.required) {
+          subscriberSchema.properties[key] = determineSchemaType(value);
+          subscriberSchema.required.push(key);
+        }
+      }
+    }
+
+    return { payloadSchema, subscriberSchema };
   }
 }
 

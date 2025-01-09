@@ -30,7 +30,7 @@ import {
 import { BuildAvailableVariableSchemaUsecase } from '../workflows-v2/usecases/build-variable-schema';
 import { ExtractDefaultValuesFromSchemaUsecase } from '../workflows-v2/usecases/extract-default-values-from-schema';
 import { HydrateEmailSchemaUseCase } from '../environments-v1/usecases/output-renderers/hydrate-email-schema.usecase';
-import { BuildPayloadSchema } from '../workflows-v2/usecases/build-payload-schema/build-payload-schema.usecase';
+import { BuildSchemasByControlValues } from '../workflows-v2/usecases/build-payload-schema/build-payload-schema.usecase';
 
 const PROVIDERS = [
   CreateWorkflow,
@@ -59,7 +59,7 @@ const PROVIDERS = [
   TierRestrictionsValidateUsecase,
   HydrateEmailSchemaUseCase,
   CommunityOrganizationRepository,
-  BuildPayloadSchema,
+  BuildSchemasByControlValues,
 ];
 
 @Module({

@@ -16,14 +16,14 @@ import {
 import { WorkflowTestDataCommand } from './build-workflow-test-data.command';
 import { parsePayloadSchema } from '../../shared/parse-payload-schema';
 import { mockSchemaDefaults } from '../../util/utils';
-import { BuildPayloadSchema } from '../build-payload-schema/build-payload-schema.usecase';
+import { BuildSchemasByControlValues } from '../build-payload-schema/build-payload-schema.usecase';
 import { BuildPayloadSchemaCommand } from '../build-payload-schema/build-payload-schema.command';
 
 @Injectable()
 export class BuildWorkflowTestDataUseCase {
   constructor(
     private readonly getWorkflowByIdsUseCase: GetWorkflowByIdsUseCase,
-    private readonly buildPayloadSchema: BuildPayloadSchema
+    private readonly buildSchemasByControlValues: BuildSchemasByControlValues
   ) {}
 
   @InstrumentUsecase()
@@ -48,7 +48,7 @@ export class BuildWorkflowTestDataUseCase {
       return parsePayloadSchema(workflow.payloadSchema, { safe: true }) || {};
     }
 
-    return this.buildPayloadSchema.execute(
+    const { payloadSchema } = await this.buildSchemasByControlValues.execute(
       BuildPayloadSchemaCommand.create({
         environmentId: command.user.environmentId,
         organizationId: command.user.organizationId,
@@ -56,6 +56,8 @@ export class BuildWorkflowTestDataUseCase {
         workflowId: workflow._id,
       })
     );
+
+    return payloadSchema;
   }
 
   private generatePayloadMock(schema: JSONSchemaDto): Record<string, unknown> {
