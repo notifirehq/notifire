@@ -124,6 +124,7 @@ export const CustomStepControls = (props: CustomStepControlsProps) => {
             }
             setIsOverridden(checked);
           }}
+          data-testid="override-defaults-switch"
         />
       </div>
       <Separator className="mb-3" />

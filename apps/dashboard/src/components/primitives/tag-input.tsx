@@ -84,8 +84,10 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>((props, ref) => {
           <div className="flex flex-wrap gap-2">
             {tags.map((tag, index) => (
               <Badge key={index} variant="outline" kind="tag" className="gap-1">
-                <span style={{ wordBreak: 'break-all' }}>{tag}</span>
-                <button type="button" onClick={() => removeTag(tag)}>
+                <span style={{ wordBreak: 'break-all' }} data-testid="tags-badge-value">
+                  {tag}
+                </span>
+                <button type="button" onClick={() => removeTag(tag)} data-testid={`tags-badge-remove-${tag}`}>
                   <RiCloseFill className="-mr-0.5 size-3" />
                   <span className="sr-only">Remove tag</span>
                 </button>

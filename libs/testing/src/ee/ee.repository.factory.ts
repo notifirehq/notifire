@@ -35,29 +35,43 @@ export function getEERepository<T>(className: 'OrganizationRepository' | 'Member
   }
 }
 
-function getEEUserRepository() {
+export function getEEUserRepository({ mockClerkClient = true }: { mockClerkClient?: boolean } = {}) {
   // nx-ignore-next-line
   const enterpriseModule = require('@novu/ee-auth');
   const EnterpriseUserRepository = enterpriseModule?.EEUserRepository;
-  const ClerkClientMock = enterpriseModule?.ClerkClientMock;
 
-  return new EnterpriseUserRepository(new CommunityUserRepository(), new ClerkClientMock());
+  if (mockClerkClient) {
+    const ClerkClientMock = enterpriseModule?.ClerkClientMock;
+
+    return new EnterpriseUserRepository(new CommunityUserRepository(), new ClerkClientMock());
+  }
+
+  return new EnterpriseUserRepository(new CommunityUserRepository());
 }
 
-function getEEOrganizationRepository() {
+export function getEEOrganizationRepository({ mockClerkClient = true }: { mockClerkClient?: boolean } = {}) {
   // nx-ignore-next-line
   const enterpriseModule = require('@novu/ee-auth');
   const EEOrganizationRepository = enterpriseModule?.EEOrganizationRepository;
-  const ClerkClientMock = enterpriseModule?.ClerkClientMock;
+  if (mockClerkClient) {
+    const ClerkClientMock = enterpriseModule?.ClerkClientMock;
 
-  return new EEOrganizationRepository(new CommunityOrganizationRepository(), new ClerkClientMock());
+    return new EEOrganizationRepository(new CommunityOrganizationRepository(), new ClerkClientMock());
+  }
+
+  return new EEOrganizationRepository(new CommunityOrganizationRepository());
 }
 
-function getEEMemberRepository() {
+export function getEEMemberRepository({ mockClerkClient = true }: { mockClerkClient?: boolean } = {}) {
   // nx-ignore-next-line
   const enterpriseModule = require('@novu/ee-auth');
   const EEMemberRepository = enterpriseModule?.EEMemberRepository;
-  const ClerkClientMock = enterpriseModule?.ClerkClientMock;
 
-  return new EEMemberRepository(new CommunityOrganizationRepository(), new ClerkClientMock());
+  if (mockClerkClient) {
+    const ClerkClientMock = enterpriseModule?.ClerkClientMock;
+
+    return new EEMemberRepository(new CommunityOrganizationRepository(), new ClerkClientMock());
+  }
+
+  return new EEMemberRepository(new CommunityOrganizationRepository());
 }

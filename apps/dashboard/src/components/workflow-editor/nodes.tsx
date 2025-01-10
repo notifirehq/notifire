@@ -114,7 +114,10 @@ export const InAppNode = (props: NodeProps<NodeType>) => {
   const Icon = STEP_TYPE_TO_ICON[StepTypeEnum.IN_APP];
 
   return (
-    <Link to={buildRoute(ROUTES.EDIT_STEP, { stepSlug: data.stepSlug ?? '' })}>
+    <Link
+      to={buildRoute(ROUTES.EDIT_STEP, { stepSlug: data.stepSlug ?? '' })}
+      data-testid={`${StepTypeEnum.IN_APP}-node`}
+    >
       <StepNode data={data}>
         <NodeHeader type={StepTypeEnum.IN_APP}>
           <NodeIcon variant={STEP_TYPE_TO_COLOR[StepTypeEnum.IN_APP]}>

@@ -46,6 +46,7 @@ type UserSessionOptions = {
   ee?: {
     userId: 'clerk_user_1' | 'clerk_user_2';
     orgId: 'clerk_org_1';
+    mockClerkClient?: boolean;
   };
 };
 
@@ -146,7 +147,8 @@ export class UserSession {
   }
 
   private async initializeEE(options: UserSessionOptions = { ee: { userId: 'clerk_user_1', orgId: 'clerk_org_1' } }) {
-    const userService = new EEUserService();
+    const mockClerkClient = options.ee?.mockClerkClient ?? true;
+    const userService = new EEUserService({ mockClerkClient });
 
     // user is already in org
     const userId = options.ee?.userId || 'clerk_user_1';
@@ -154,7 +156,6 @@ export class UserSession {
 
     // already existing user in Clerk
     const user = await userService.getUser(userId);
-
     if (!user._id) {
       // not linked in clerk
       this.user = await userService.createUser(userId);
@@ -163,7 +164,7 @@ export class UserSession {
     }
 
     if (!options.noOrganization) {
-      await this.addOrganizationEE(orgId);
+      await this.addOrganizationEE(orgId, mockClerkClient);
     }
 
     await this.fetchJwtEE();
@@ -373,8 +374,8 @@ export class UserSession {
     return this.organization;
   }
 
-  private async addOrganizationEE(orgId: string) {
-    const organizationService = new EEOrganizationService();
+  private async addOrganizationEE(orgId: string, mockClerkClient = true) {
+    const organizationService = new EEOrganizationService({ mockClerkClient });
 
     try {
       // is not linked

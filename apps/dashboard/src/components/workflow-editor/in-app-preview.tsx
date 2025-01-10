@@ -99,7 +99,13 @@ export const InAppPreviewSubject = (props: InAppPreviewSubjectProps) => {
     return <Skeleton className="h-5 w-1/2" />;
   }
 
-  return <Markdown className={cn('text-foreground-600 truncate text-xs font-medium', className)} {...rest} />;
+  return (
+    <Markdown
+      className={cn('text-foreground-600 truncate text-xs font-medium', className)}
+      {...rest}
+      data-testid="in-app-preview-subject"
+    />
+  );
 };
 
 type InAppPreviewBodyProps = MarkdownProps & { isPending?: boolean };
@@ -115,7 +121,13 @@ export const InAppPreviewBody = (props: InAppPreviewBodyProps) => {
     );
   }
 
-  return <Markdown className={cn('text-foreground-400 text-xs font-normal', className)} {...rest} />;
+  return (
+    <Markdown
+      className={cn('text-foreground-400 text-xs font-normal', className)}
+      {...rest}
+      data-testid="in-app-preview-body"
+    />
+  );
 };
 
 type InAppPreviewActionsProps = HTMLAttributes<HTMLDivElement>;

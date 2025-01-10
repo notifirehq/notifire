@@ -82,6 +82,7 @@ export function ActivityPanel({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className="h-full"
+      data-testid="activity-panel"
     >
       <div>
         <div
