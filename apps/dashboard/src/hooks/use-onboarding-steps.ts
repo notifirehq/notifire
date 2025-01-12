@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
-import { useFetchWorkflows } from './use-fetch-workflows';
 import { useOrganization } from '@clerk/clerk-react';
 import { ChannelTypeEnum, IIntegration } from '@novu/shared';
-import { useFetchIntegrations } from './use-fetch-integrations';
+import { useMemo } from 'react';
 import { ONBOARDING_DEMO_WORKFLOW_ID } from '../config';
+import { useFetchIntegrations } from './use-fetch-integrations';
+import { useFetchWorkflows } from './use-fetch-workflows';
 
 export enum StepIdEnum {
   ACCOUNT_CREATION = 'account-creation',
@@ -53,7 +53,7 @@ function getProviderDescription(providerType: ChannelTypeEnum): string {
 
 function isActiveIntegration(integration: IIntegration, providerType: ChannelTypeEnum): boolean {
   const isMatchingChannel = integration.channel === providerType;
-  const isNotNovuProvider = !integration.providerId.startsWith('novu-');
+  const isNotNovuProvider = !integration.providerId?.startsWith('novu-');
   const isConnected = providerType === ChannelTypeEnum.IN_APP ? !!integration.connected : true;
 
   return isMatchingChannel && isNotNovuProvider && isConnected;

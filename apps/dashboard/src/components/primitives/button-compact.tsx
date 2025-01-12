@@ -5,6 +5,7 @@ import { PolymorphicComponentProps } from '@/utils/polymorphic';
 import { recursiveCloneChildren } from '@/utils/recursive-clone-children';
 import { tv, type VariantProps } from '@/utils/tv';
 import { IconType } from 'react-icons';
+import { RiLoader4Line } from 'react-icons/ri';
 
 const COMPACT_BUTTON_ROOT_NAME = 'CompactButtonRoot';
 const COMPACT_BUTTON_ICON_NAME = 'CompactButtonIcon';
@@ -20,7 +21,7 @@ export const compactButtonVariants = tv({
       // focus
       'focus:outline-none',
     ],
-    icon: '',
+    icon: ['transition-transform', '[&.loading]:animate-spin'],
   },
   variants: {
     variant: {
@@ -135,11 +136,12 @@ const CompactButton = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof CompactButtonRoot> & {
     icon: IconType;
+    isLoading?: boolean;
   }
->(({ children, icon: Icon, ...rest }, forwardedRef) => {
+>(({ children, icon: Icon, isLoading, disabled, ...rest }, forwardedRef) => {
   return (
-    <CompactButtonRoot ref={forwardedRef} {...rest}>
-      <CompactButtonIcon as={Icon} />
+    <CompactButtonRoot ref={forwardedRef} disabled={isLoading || disabled} {...rest}>
+      <CompactButtonIcon as={isLoading ? RiLoader4Line : Icon} className={isLoading ? 'loading' : ''} />
     </CompactButtonRoot>
   );
 });

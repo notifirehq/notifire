@@ -1,6 +1,6 @@
+import { ReactNode } from 'react';
 import { ExternalToast, toast } from 'sonner';
 import { Toast, ToastIcon, ToastProps } from './sonner';
-import { ReactNode } from 'react';
 
 export const showToast = ({
   options,
@@ -18,7 +18,10 @@ export const showToast = ({
   });
 };
 
-export const showSuccessToast = (message: string, position: 'bottom-center' | 'top-center' = 'bottom-center') => {
+export const showSuccessToast = (
+  message: string,
+  position: 'bottom-center' | 'top-center' | 'bottom-right' = 'bottom-center'
+) => {
   showToast({
     children: () => (
       <>

@@ -1,20 +1,24 @@
-import { useEffect, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { IActivityJob } from '@novu/shared';
 import { motion } from 'motion/react';
-import { RiPlayCircleLine, RiRouteFill } from 'react-icons/ri';
-import { IActivityJob, JobStatusEnum } from '@novu/shared';
+import { RiMemoriesFill, RiPlayCircleLine, RiRouteFill } from 'react-icons/ri';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../primitives/tooltip';
 
-import { ActivityJobItem } from './activity-job-item';
-import { InlineToast } from '../primitives/inline-toast';
-import { useFetchActivity } from '@/hooks/use-fetch-activity';
-import { ActivityOverview } from './components/activity-overview';
-import { cn } from '../../utils/ui';
-import { Skeleton } from '../primitives/skeleton';
-import { QueryKeys } from '@/utils/query-keys';
 import { useEnvironment } from '@/context/environment/hooks';
+import { useTriggerWorkflow } from '@/hooks/use-trigger-workflow';
+import { useTelemetry } from '../../hooks/use-telemetry';
+import { TelemetryEvent } from '../../utils/telemetry';
+import { cn } from '../../utils/ui';
+import { CompactButton } from '../primitives/button-compact';
+import { InlineToast } from '../primitives/inline-toast';
+import { Skeleton } from '../primitives/skeleton';
+import { showErrorToast, showSuccessToast } from '../primitives/sonner-helpers';
+import { ActivityJobItem } from './activity-job-item';
+import { ActivityOverview } from './components/activity-overview';
+import { useActivityByTransaction, useActivityPolling } from './hooks';
 
 export interface ActivityPanelProps {
   activityId?: string;
+  transactionId?: string;
   onActivitySelect: (activityId: string) => void;
   headerClassName?: string;
   overviewHeaderClassName?: string;
@@ -22,40 +26,49 @@ export interface ActivityPanelProps {
 
 export function ActivityPanel({
   activityId,
+  transactionId: initialTransactionId,
   onActivitySelect,
   headerClassName,
   overviewHeaderClassName,
 }: ActivityPanelProps) {
-  const queryClient = useQueryClient();
-  const [shouldRefetch, setShouldRefetch] = useState(true);
+  const track = useTelemetry();
+  const { isLoadingTransaction, setTransactionId } = useActivityByTransaction({
+    transactionId: initialTransactionId,
+    onActivityFound: onActivitySelect,
+  });
+
+  const { activity, isPending, error } = useActivityPolling({
+    activityId,
+  });
+
   const { currentEnvironment } = useEnvironment();
-  const { activity, isPending, error } = useFetchActivity(
-    { activityId },
-    {
-      refetchInterval: shouldRefetch ? 1000 : false,
+  const { triggerWorkflow, isPending: isRerunning } = useTriggerWorkflow();
+
+  const handleRerun = async () => {
+    if (!activity || !currentEnvironment) return;
+
+    try {
+      track(TelemetryEvent.RE_RUN_WORKFLOW, {
+        name: activity.template?.name,
+      });
+
+      const { data } = await triggerWorkflow({
+        name: activity.template?.triggers[0].identifier || '',
+        payload: activity.payload || {},
+        to: activity.subscriber?.subscriberId || '',
+      });
+
+      showSuccessToast('Workflow triggered successfully', 'bottom-right');
+
+      if (data?.transactionId) {
+        setTransactionId(data.transactionId);
+      }
+    } catch (e: any) {
+      showErrorToast(e.message || 'Failed to trigger workflow');
     }
-  );
+  };
 
-  useEffect(() => {
-    if (!activity) return;
-
-    const isPending = activity.jobs?.some(
-      (job) =>
-        job.status === JobStatusEnum.PENDING ||
-        job.status === JobStatusEnum.QUEUED ||
-        job.status === JobStatusEnum.RUNNING ||
-        job.status === JobStatusEnum.DELAYED
-    );
-
-    // Only stop refetching if we have an activity and it's not pending
-    setShouldRefetch(isPending || !activity?.jobs?.length);
-
-    queryClient.invalidateQueries({
-      queryKey: [QueryKeys.fetchActivity, currentEnvironment?._id, activityId],
-    });
-  }, [activity, queryClient, currentEnvironment, activityId]);
-
-  if (isPending) {
+  if (isPending || isLoadingTransaction) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
         <LoadingSkeleton />
@@ -95,6 +108,20 @@ export function ActivityPanel({
           <span className="text-foreground-950 text-sm font-medium">
             {activity.template?.name || 'Deleted workflow'}
           </span>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CompactButton
+                icon={RiMemoriesFill}
+                size="md"
+                variant="ghost"
+                className="ml-auto"
+                onClick={handleRerun}
+                isLoading={isRerunning}
+              />
+            </TooltipTrigger>
+            <TooltipContent>Rerun this workflow again with the same payload and recipients</TooltipContent>
+          </Tooltip>
         </div>
         <ActivityOverview activity={activity} />
 

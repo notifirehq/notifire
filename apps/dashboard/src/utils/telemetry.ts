@@ -37,4 +37,5 @@ export enum TelemetryEvent {
   CHANGELOG_ITEM_CLICKED = 'Changelog item clicked',
   CHANGELOG_ITEM_DISMISSED = 'Changelog item dismissed',
   SHARE_FEEDBACK_LINK_CLICKED = 'Share feedback link clicked',
+  RE_RUN_WORKFLOW = 'Re-run workflow',
 }
