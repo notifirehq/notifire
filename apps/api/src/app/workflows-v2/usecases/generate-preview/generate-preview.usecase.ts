@@ -86,7 +86,11 @@ export class GeneratePreviewUsecase {
         const processedControlValues = this.fixControlValueInvalidVariables(controlValue, variables.invalidVariables);
 
         const validVariableNames = variables.validVariables.map((variable) => variable.name);
-        const variablesExampleResult = keysToObject(validVariableNames, { fn: (key) => `{{${key}}}` });
+        const showIfVariables: string[] = this.findShowIfVariables(processedControlValues);
+
+        const variablesExampleResult = keysToObject(validVariableNames, {
+          fn: (key) => (showIfVariables.includes(key) ? true : `{{${key}}}`),
+        });
 
         previewTemplateData = {
           variablesExample: _.merge(previewTemplateData.variablesExample, variablesExampleResult),
@@ -136,6 +140,29 @@ export class GeneratePreviewUsecase {
         previewPayloadExample: {},
       } as any;
     }
+  }
+
+  private findShowIfVariables(processedControlValues: Record<string, unknown>) {
+    const showIfVariables: string[] = [];
+    if (typeof processedControlValues === 'string') {
+      try {
+        const parsed = JSON.parse(processedControlValues);
+        const extractShowIfKeys = (node: any) => {
+          if (node?.attrs?.showIfKey) {
+            const key = node.attrs.showIfKey;
+            showIfVariables.push(key);
+          }
+          if (node.content) {
+            node.content.forEach((child: any) => extractShowIfKeys(child));
+          }
+        };
+        extractShowIfKeys(parsed);
+      } catch (e) {
+        // If parsing fails, continue with empty showIfVariables
+      }
+    }
+
+    return showIfVariables;
   }
 
   private sanitizeControlsForPreview(initialControlValues: Record<string, unknown>, stepData: StepResponseDto) {

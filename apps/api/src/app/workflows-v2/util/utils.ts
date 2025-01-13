@@ -159,7 +159,10 @@ export function mockSchemaDefaults(schema: JSONSchemaDto, parentPath = 'payload'
  * // Returns: { payload: { old: 'payload.old', new: 'payload.new' } }
  * // Note: 'payload' entry is ignored as it has no namespace
  */
-export function keysToObject(keys: string[], { fn } = { fn: (key: string) => key }) {
+export function keysToObject(
+  keys: string[],
+  { fn }: { fn: (key: string) => string | boolean } = { fn: (key: string) => key }
+) {
   const result: Record<string, Record<string, unknown> | undefined> = {};
   keys.filter((key) => key.includes('.')).forEach((key) => set(result, key, fn(key)));
 
