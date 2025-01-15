@@ -14,10 +14,10 @@ export const workflowSchema = z.object({
   tags: z
     .array(z.string().min(0).max(MAX_TAG_LENGTH))
     .max(MAX_TAG_ELEMENTS)
-    .optional()
     .refine((tags) => tags?.every((tag) => tag.length <= MAX_TAG_LENGTH), {
       message: `Tags must be less than ${MAX_TAG_LENGTH} characters`,
     })
+    .optional()
     .refine((tags) => new Set(tags).size === tags?.length, {
       message: 'Duplicate tags are not allowed',
     }),

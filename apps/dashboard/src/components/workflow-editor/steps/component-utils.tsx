@@ -3,8 +3,8 @@ import { UiComponentEnum } from '@novu/shared';
 import { DelayAmount } from '@/components/workflow-editor/steps/delay/delay-amount';
 import { DigestKey } from '@/components/workflow-editor/steps/digest/digest-key';
 import { DigestWindow } from '@/components/workflow-editor/steps/digest/digest-window';
+import { EmailBodyEditor } from '@/components/workflow-editor/steps/email/email-body-editor';
 import { EmailSubject } from '@/components/workflow-editor/steps/email/email-subject';
-import { Maily } from '@/components/workflow-editor/steps/email/maily';
 import { InAppAction } from '@/components/workflow-editor/steps/in-app/in-app-action';
 import { InAppAvatar } from '@/components/workflow-editor/steps/in-app/in-app-avatar';
 import { InAppBody } from '@/components/workflow-editor/steps/in-app/in-app-body';
@@ -40,7 +40,7 @@ export const getComponentByType = ({ component }: { component?: UiComponentEnum 
       return <DelayAmount />;
     }
     case UiComponentEnum.BLOCK_EDITOR: {
-      return <Maily />;
+      return <EmailBodyEditor />;
     }
     case UiComponentEnum.TEXT_INLINE_LABEL: {
       return <EmailSubject />;
