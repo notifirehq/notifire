@@ -1,12 +1,30 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
 import {
+  AnalyticsService,
+  CreateWorkflowCommand,
+  CreateWorkflow as CreateWorkflowGeneric,
+  GetWorkflowByIdsCommand,
+  GetWorkflowByIdsUseCase,
+  Instrument,
+  InstrumentUsecase,
+  NotificationStep,
+  shortId,
+  UpdateWorkflowCommand,
+  UpdateWorkflow as UpdateWorkflowGeneric,
+  UpsertControlValuesCommand,
+  UpsertControlValuesUseCase,
+  WorkflowInternalResponseDto,
+} from '@novu/application-generic';
+import {
   ControlValuesRepository,
   NotificationGroupRepository,
   NotificationStepEntity,
   NotificationTemplateEntity,
 } from '@novu/dal';
 import {
+  ControlSchemas,
+  ControlValuesLevelEnum,
   DEFAULT_WORKFLOW_PREFERENCES,
   slugify,
   StepCreateDto,
@@ -17,30 +35,13 @@ import {
   WorkflowOriginEnum,
   WorkflowResponseDto,
   WorkflowTypeEnum,
-  ControlValuesLevelEnum,
-  ControlSchemas,
 } from '@novu/shared';
-import {
-  CreateWorkflow as CreateWorkflowGeneric,
-  CreateWorkflowCommand,
-  GetWorkflowByIdsCommand,
-  GetWorkflowByIdsUseCase,
-  Instrument,
-  InstrumentUsecase,
-  NotificationStep,
-  shortId,
-  UpdateWorkflow as UpdateWorkflowGeneric,
-  UpdateWorkflowCommand,
-  WorkflowInternalResponseDto,
-  UpsertControlValuesCommand,
-  UpsertControlValuesUseCase,
-} from '@novu/application-generic';
 
-import { UpsertWorkflowCommand, UpsertWorkflowDataCommand } from './upsert-workflow.command';
 import { stepTypeToControlSchema } from '../../shared';
-import { GetWorkflowCommand, GetWorkflowUseCase } from '../get-workflow';
-import { BuildStepIssuesUsecase } from '../build-step-issues/build-step-issues.usecase';
 import { computeWorkflowStatus } from '../../shared/compute-workflow-status';
+import { BuildStepIssuesUsecase } from '../build-step-issues/build-step-issues.usecase';
+import { GetWorkflowCommand, GetWorkflowUseCase } from '../get-workflow';
+import { UpsertWorkflowCommand, UpsertWorkflowDataCommand } from './upsert-workflow.command';
 
 @Injectable()
 export class UpsertWorkflowUseCase {
@@ -52,7 +53,8 @@ export class UpsertWorkflowUseCase {
     private getWorkflowUseCase: GetWorkflowUseCase,
     private buildStepIssuesUsecase: BuildStepIssuesUsecase,
     private controlValuesRepository: ControlValuesRepository,
-    private upsertControlValuesUseCase: UpsertControlValuesUseCase
+    private upsertControlValuesUseCase: UpsertControlValuesUseCase,
+    private analyticsService: AnalyticsService
   ) {}
 
   @InstrumentUsecase()
@@ -93,12 +95,28 @@ export class UpsertWorkflowUseCase {
     command: UpsertWorkflowCommand
   ): Promise<WorkflowInternalResponseDto> {
     if (existingWorkflow && isWorkflowUpdateDto(command.workflowDto, command.workflowIdOrInternalId)) {
+      this.analyticsService.mixpanelTrack('Workflow Update - [API]', command.user._id, {
+        _organization: command.user.organizationId,
+        name: command.workflowDto.name,
+        tags: command.workflowDto.tags || [],
+        origin: command.workflowDto.origin,
+        source: command.workflowDto.__source,
+      });
+
       return await this.updateWorkflowGenericUsecase.execute(
         UpdateWorkflowCommand.create(
           await this.buildUpdateWorkflowCommand(command.workflowDto, command.user, existingWorkflow)
         )
       );
     }
+
+    this.analyticsService.mixpanelTrack('Workflow Created - [API]', command.user?._id, {
+      _organization: command.user?.organizationId,
+      name: command.workflowDto?.name,
+      tags: command.workflowDto?.tags || [],
+      origin: command.workflowDto?.origin,
+      source: command.workflowDto?.__source,
+    });
 
     return await this.createWorkflowGenericUsecase.execute(
       CreateWorkflowCommand.create(await this.buildCreateWorkflowCommand(command))
