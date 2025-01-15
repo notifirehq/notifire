@@ -664,7 +664,18 @@ export default {
         'test-pattern':
           'repeating-linear-gradient(135deg, hsl(var(--neutral-100)) 0, hsl(var(--neutral-100)) 2px, hsl(var(--neutral-200)) 2px, hsl(var(--neutral-200)) 4px)',
       },
+      overflow: {
+        initial: 'initial',
+      },
     },
   },
-  plugins: [import('tailwindcss-animate')],
+  plugins: [
+    import('tailwindcss-animate'),
+    function ({ addUtilities }: { addUtilities: (utilities: Record<string, any>) => void }) {
+      addUtilities({
+        '.overflow-initial': { overflow: 'initial' },
+        '.overflow-inherit': { overflow: 'inherit' },
+      });
+    },
+  ],
 };

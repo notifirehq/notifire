@@ -1,4 +1,5 @@
 import { autocompleteFooter, autocompleteHeader, functionIcon } from '@/components/primitives/constants';
+import { useDataRef } from '@/hooks/use-data-ref';
 import { tags as t } from '@lezer/highlight';
 import createTheme from '@uiw/codemirror-themes';
 import { EditorView, ReactCodeMirrorProps, useCodeMirror } from '@uiw/react-codemirror';
@@ -142,6 +143,7 @@ export const Editor = React.forwardRef<{ focus: () => void; blur: () => void }, 
     },
     ref
   ) => {
+    const onChangeRef = useDataRef(onChange);
     const editorRef = useRef<HTMLDivElement>(null);
     const [shouldFocus, setShouldFocus] = useState(false);
     const extensions = useMemo(
@@ -183,10 +185,10 @@ export const Editor = React.forwardRef<{ focus: () => void; blur: () => void }, 
         // which results in value not being updated and "jumping" effect in the editor
         // to prevent this we need to flush the state updates synchronously
         flushSync(() => {
-          onChange?.(value);
+          onChangeRef.current?.(value);
         });
       },
-      [onChange]
+      [onChangeRef]
     );
 
     const { setContainer, view } = useCodeMirror({

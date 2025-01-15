@@ -83,7 +83,7 @@ export const TestWorkflowForm = ({ workflow }: { workflow?: WorkflowResponseDto 
 
         <Panel>
           <PanelHeader>
-            <Code2 className="size-5" />
+            <Code2 className="text-feature size-3" />
             <span className="text-neutral-950">Payload</span>
           </PanelHeader>
           <FormField

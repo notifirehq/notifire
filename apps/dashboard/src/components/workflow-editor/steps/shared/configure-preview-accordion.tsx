@@ -39,7 +39,7 @@ export const ConfigurePreviewAccordion = ({
       <AccordionItem value="payload">
         <AccordionTrigger>
           <div className="flex items-center gap-1">
-            <Code2 className="size-5" />
+            <Code2 className="text-feature size-3" />
             Configure preview
           </div>
         </AccordionTrigger>
