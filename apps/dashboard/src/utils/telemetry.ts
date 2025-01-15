@@ -39,4 +39,5 @@ export enum TelemetryEvent {
   SHARE_FEEDBACK_LINK_CLICKED = 'Share feedback link clicked',
   VARIABLE_POPOVER_OPENED = 'Variable popover opened - [Variable Editor]',
   VARIABLE_POPOVER_APPLIED = 'Variable popover applied - [Variable Editor]',
+  SUBSCRIBERS_PAGE_VISIT = 'Subscribers page visit',
 }
