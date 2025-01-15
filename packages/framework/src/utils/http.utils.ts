@@ -1,7 +1,9 @@
 import { checkIsResponseError } from '../shared';
 import { BridgeError, MissingSecretKeyError, PlatformError } from '../errors';
 
-export const initApiClient = (secretKey: string, apiUrl: string) => {
+export const initApiClient = (secretKey: string, apiUrl: string, fetchOptions?: Record<string, any>) => {
+  const { headers: additionalHeaders, ...restFetchOptions } = fetchOptions || {};
+
   if (!secretKey) {
     throw new MissingSecretKeyError();
   }
@@ -9,8 +11,10 @@ export const initApiClient = (secretKey: string, apiUrl: string) => {
   return {
     post: async <T = unknown>(route: string, data: Record<string, unknown>): Promise<T> => {
       const response = await fetch(`${apiUrl}/v1${route}`, {
+        ...restFetchOptions,
         method: 'POST',
         headers: {
+          ...additionalHeaders,
           'Content-Type': 'application/json',
           Authorization: `ApiKey ${secretKey}`,
         },
@@ -30,8 +34,10 @@ export const initApiClient = (secretKey: string, apiUrl: string) => {
     delete: async <T = unknown>(route: string): Promise<T> => {
       return (
         await fetch(`${apiUrl}/v1${route}`, {
+          ...restFetchOptions,
           method: 'DELETE',
           headers: {
+            ...additionalHeaders,
             'Content-Type': 'application/json',
             Authorization: `ApiKey ${secretKey}`,
           },

@@ -59,6 +59,10 @@ export type EventTriggerParams<T_Payload = EventPayload> = {
    * Override secret key for the trigger
    */
   secretKey?: string;
+  /**
+   * Additional fetch options to be passed to the fetch API.
+   */
+  fetchOptions?: Record<string, any>;
 } & ConditionalPartial<
   {
     /**

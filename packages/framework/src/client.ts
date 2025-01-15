@@ -67,6 +67,8 @@ export class Client {
 
   public apiUrl: string;
 
+  public fetchOptions?: Record<string, any>;
+
   public version: string = SDK_VERSION;
 
   public strictAuthentication: boolean;
@@ -75,6 +77,7 @@ export class Client {
     const builtOpts = this.buildOptions(options);
     this.apiUrl = builtOpts.apiUrl;
     this.secretKey = builtOpts.secretKey;
+    this.fetchOptions = builtOpts.fetchOptions;
     this.strictAuthentication = builtOpts.strictAuthentication;
     this.templateEngine.registerFilter('json', (value, spaces) =>
       stringifyDataStructureWithSingleQuotes(value, spaces)
@@ -85,6 +88,7 @@ export class Client {
     const builtConfiguration: Required<ClientOptions> = {
       apiUrl: resolveApiUrl(providedOptions?.apiUrl),
       secretKey: resolveSecretKey(providedOptions?.secretKey),
+      fetchOptions: providedOptions?.fetchOptions ?? {},
       strictAuthentication: !isRuntimeInDevelopment(),
     };
 
