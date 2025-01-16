@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { RuleGroupType, RuleType, remove, add, isRuleGroup, RuleGroupTypeAny, Path } from 'react-querybuilder';
+import { createContext, useCallback, useContext, useMemo } from 'react';
+import { RuleType, remove, add, isRuleGroup, RuleGroupTypeAny, Path, RuleGroupType } from 'react-querybuilder';
 
 import { ConditionsEditorContextType } from './types';
+import { useDataRef } from '@/hooks/use-data-ref';
 
 export const ConditionsEditorContext = createContext<ConditionsEditorContextType>({
   query: { combinator: 'and', rules: [] },
@@ -11,22 +12,32 @@ export const ConditionsEditorContext = createContext<ConditionsEditorContextType
   getParentGroup: () => null,
 });
 
-export function ConditionsEditorProvider({ children }: { children: React.ReactNode }) {
-  const [query, setQuery] = useState<RuleGroupType>({ combinator: 'and', rules: [] });
-
+export function ConditionsEditorProvider({
+  children,
+  query,
+  onQueryChange,
+}: {
+  children: React.ReactNode;
+  query: RuleGroupType;
+  onQueryChange: (query: RuleGroupType) => void;
+}) {
+  const queryRef = useDataRef(query);
+  const queryChangeRef = useDataRef(onQueryChange);
   const removeRuleOrGroup = useCallback(
     (path: Path) => {
-      setQuery((oldQuery) => remove(oldQuery, path));
+      queryChangeRef.current(remove(queryRef.current, path));
     },
-    [setQuery]
+    [queryChangeRef, queryRef]
   );
 
   const cloneRuleOrGroup = useCallback(
     (ruleOrGroup: RuleGroupTypeAny | RuleType, path: Path = []) => {
-      setQuery((oldQuery) => add(oldQuery, { ...ruleOrGroup, id: crypto.randomUUID() } as RuleType, path));
+      queryChangeRef.current(add(queryRef.current, { ...ruleOrGroup, id: crypto.randomUUID() } as RuleType, path));
     },
-    [setQuery]
+    [queryChangeRef, queryRef]
   );
+
+  const setQuery = useCallback((query: RuleGroupType) => queryChangeRef.current(query), [queryChangeRef]);
 
   const getParentGroup = useCallback(
     (id?: string) => {

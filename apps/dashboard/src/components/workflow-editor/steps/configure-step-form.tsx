@@ -19,6 +19,8 @@ import {
   RiPencilRuler2Fill,
 } from 'react-icons/ri';
 import { Link, useNavigate } from 'react-router-dom';
+import { parseJsonLogic } from 'react-querybuilder/parseJsonLogic';
+import { RQBJsonLogic } from 'react-querybuilder';
 
 import { ConfirmationModal } from '@/components/confirmation-modal';
 import { PageMeta } from '@/components/page-meta';
@@ -197,6 +199,14 @@ export const ConfigureStepForm = (props: ConfigureStepFormProps) => {
 
   const value = useMemo(() => ({ saveForm }), [saveForm]);
 
+  const conditionsCount = useMemo(() => {
+    if (!step.controls.values.skip) return 0;
+
+    const query = parseJsonLogic(step.controls.values.skip as RQBJsonLogic);
+
+    return query.rules.length;
+  }, [step]);
+
   return (
     <>
       <PageMeta title={`Configure ${step.name}`} />
@@ -333,7 +343,7 @@ export const ConfigureStepForm = (props: ConfigureStepFormProps) => {
                     <RiGuideFill className="h-4 w-4 text-neutral-600" />
                     Step Conditions
                     <span className="ml-auto flex items-center gap-0.5">
-                      <span>0</span>
+                      <span>{conditionsCount}</span>
                       <RiArrowRightSLine className="ml-auto h-4 w-4 text-neutral-600" />
                     </span>
                   </Button>

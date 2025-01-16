@@ -40,7 +40,7 @@ export const UnsavedChangesAlertDialog = (props: UnsavedChangesAlertDialogProps)
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => blocker.reset?.()}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => blocker.proceed?.()}>
+          <AlertDialogAction onClick={() => blocker.proceed?.()} asChild>
             <Button trailingIcon={RiArrowRightSLine} variant="error" mode="ghost" size="xs">
               Proceed anyway
             </Button>
