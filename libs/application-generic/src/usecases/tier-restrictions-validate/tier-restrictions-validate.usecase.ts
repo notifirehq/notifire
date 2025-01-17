@@ -8,7 +8,7 @@ import {
 } from '@novu/shared';
 import { CommunityOrganizationRepository } from '@novu/dal';
 
-import { differenceInMilliseconds } from 'date-fns';
+import { differenceInMilliseconds, addYears, isAfter } from 'date-fns';
 
 import { TierRestrictionsValidateCommand } from './tier-restrictions-validate.command';
 import {
@@ -43,19 +43,20 @@ export class TierRestrictionsValidateUsecase {
     const apiServiceLevel = (
       await this.organizationRepository.findById(command.organizationId)
     )?.apiServiceLevel;
+    const maxDelayMs = getMaxDelay(apiServiceLevel);
 
     if (isCronExpression(command.cron)) {
-      // TODO: Implement cron expression validation
-
-      /*
-       * const deferDurationMs = this.buildCronDeltaDeferDuration(command);
-       * const issue = buildIssue(
-       *   deferDurationMs,
-       *   getMaxDelay(apiServiceLevel),
-       *   ErrorEnum.TIER_LIMIT_EXCEEDED,
-       *   'cron',
-       * );
-       */
+      if (this.isCronDeltaDeferDurationExceededTier(command.cron, maxDelayMs)) {
+        return [
+          {
+            controlKey: 'cron',
+            error: ErrorEnum.TIER_LIMIT_EXCEEDED,
+            message:
+              `The maximum delay allowed is ${msToDays(maxDelayMs)} days. ` +
+              'Please contact our support team to discuss extending this limit for your use case.',
+          },
+        ];
+      }
 
       return [];
     }
@@ -65,13 +66,13 @@ export class TierRestrictionsValidateUsecase {
 
       const amountIssue = buildIssue(
         deferDurationMs,
-        getMaxDelay(apiServiceLevel),
+        maxDelayMs,
         ErrorEnum.TIER_LIMIT_EXCEEDED,
         'amount',
       );
       const unitIssue = buildIssue(
         deferDurationMs,
-        getMaxDelay(apiServiceLevel),
+        maxDelayMs,
         ErrorEnum.TIER_LIMIT_EXCEEDED,
         'unit',
       );
@@ -82,14 +83,37 @@ export class TierRestrictionsValidateUsecase {
     return [];
   }
 
-  private buildCronDeltaDeferDuration(
-    command: TierRestrictionsValidateCommand,
-  ): number | null {
-    const cronExpression = parseCronExpression(command.cron);
-    const firstTime = cronExpression.next().toDate();
-    const secondTime = cronExpression.next().toDate();
+  private isCronDeltaDeferDurationExceededTier(
+    cron: string,
+    maxDelayMs: number,
+  ): boolean {
+    const cronExpression = parseCronExpression(cron);
+    const firstDate = cronExpression.next().toDate();
+    const twoYearsFromFirst = addYears(firstDate, 2);
+    let previousDate = firstDate;
+    const MAX_ITERATIONS = 50;
 
-    return differenceInMilliseconds(firstTime, secondTime);
+    for (let i = 0; i < MAX_ITERATIONS; i += 1) {
+      const currentDate = cronExpression.next().toDate();
+
+      // If we've gone past two years from the first date, the intervals are safe
+      if (isAfter(currentDate, twoYearsFromFirst)) {
+        return false;
+      }
+
+      const deferDurationMs = differenceInMilliseconds(
+        currentDate,
+        previousDate,
+      );
+
+      if (deferDurationMs > maxDelayMs) {
+        return true;
+      }
+
+      previousDate = currentDate;
+    }
+
+    return false;
   }
 }
 
@@ -142,6 +166,10 @@ const isCronExpression = (cron: string) => {
 };
 
 const isRegularDeferAction = (command: TierRestrictionsValidateCommand) => {
+  if (command.deferDurationMs) {
+    return true;
+  }
+
   return (
     !!command.amount &&
     isNumber(command.amount) &&

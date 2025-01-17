@@ -569,6 +569,42 @@ contexts.forEach((context: Context) => {
 
       expect(messagesAfter.length).to.be.eq(1);
       expect(messagesAfter[0].content).to.match(/people waited for \d+ seconds/);
+
+      const exceedMaxTierDurationWorkflowId = `exceed-max-tier-duration-workflow-${`${context.name}`}`;
+      const exceedMaxTierDurationWorkflow = workflow(exceedMaxTierDurationWorkflowId, async ({ step }) => {
+        await step.delay('delay-id', async (controls) => {
+          return {
+            type: 'regular',
+            amount: 100,
+            unit: 'days',
+          };
+        });
+
+        await step.inApp('send-in-app', async () => {
+          return {
+            body: `people want to wait for 100 days`,
+          };
+        });
+      });
+
+      await bridgeServer.stop();
+      await bridgeServer.start({ workflows: [exceedMaxTierDurationWorkflow] });
+
+      if (context.isStateful) {
+        await discoverAndSyncBridge(session, workflowsRepository, workflowId, bridgeServer);
+      }
+
+      const result = await triggerEvent(session, exceedMaxTierDurationWorkflowId, subscriber.subscriberId, {}, bridge);
+      await session.awaitRunningJobs();
+
+      const executionDetails = await executionDetailsRepository.find({
+        _environmentId: session.environment._id,
+        _subscriberId: subscriber._id,
+        transactionId: result?.data?.data?.transactionId,
+      });
+
+      const delayExecutionDetails = executionDetails.filter((executionDetail) => executionDetail.channel === 'delay');
+      expect(delayExecutionDetails.some((detail) => detail.detail === 'Defer duration limit exceeded')).to.be.true;
     });
 
     it(`should trigger the bridge workflow with control default and payload data [${context.name}]`, async () => {
@@ -1662,7 +1698,7 @@ async function triggerEvent(
     name: 'test_name',
   };
 
-  await axios.post(
+  return await axios.post(
     `${session.serverUrl}${eventTriggerPath}`,
     {
       name: workflowId,
