@@ -100,12 +100,10 @@ export class BuildStepIssuesUsecase {
           issues.controls = issues.controls || {};
 
           issues.controls[controlKey] = liquidTemplateIssues.invalidVariables.map((error) => {
-            const message = error.message
-              ? error.message[0].toUpperCase() + error.message.slice(1).split(' line:')[0]
-              : '';
+            const message = error.message ? error.message.split(' line:')[0] : '';
 
             return {
-              message: `${message} variable: ${error.output}`,
+              message: `Variable ${error.output} ${message}`.trim(),
               issueType: StepContentIssueEnum.ILLEGAL_VARIABLE_IN_CONTROL_VALUE,
               variableName: error.output,
             };
@@ -252,7 +250,7 @@ export class BuildStepIssuesUsecase {
       error.message?.includes('mailto') &&
       error.message?.includes('https')
     ) {
-      return `Invalid URL format. Must be a valid absolute URL, path starting with /, or {{variable}}`;
+      return `Invalid URL. Must be a valid full URL, path starting with /, or {{variable}}`;
     }
 
     return error.message || 'Invalid value';

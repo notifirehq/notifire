@@ -6,7 +6,7 @@ import { FormControl, FormField, FormItem, FormMessage } from '@/components/prim
 import { useWorkflow } from '@/components/workflow-editor/workflow-provider';
 import { parseStepVariablesToLiquidVariables } from '@/utils/parseStepVariablesToLiquidVariables';
 import { capitalize } from '@/utils/string';
-import { InputRoot, InputWrapper } from '../../../primitives/input';
+import { InputRoot } from '@/components/primitives/input';
 
 const subjectKey = 'subject';
 
@@ -23,17 +23,15 @@ export const InAppSubject = () => {
         <FormItem className="w-full">
           <FormControl>
             <InputRoot hasError={!!fieldState.error}>
-              <InputWrapper className="flex h-9 items-center p-2.5">
-                <ControlInput
-                  multiline={false}
-                  indentWithTab={false}
-                  placeholder={capitalize(field.name)}
-                  id={field.name}
-                  value={field.value}
-                  onChange={field.onChange}
-                  variables={variables}
-                />
-              </InputWrapper>
+              <ControlInput
+                multiline={false}
+                indentWithTab={false}
+                placeholder={capitalize(field.name)}
+                id={field.name}
+                value={field.value}
+                onChange={field.onChange}
+                variables={variables}
+              />
             </InputRoot>
           </FormControl>
           <FormMessage />

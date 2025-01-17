@@ -41,9 +41,9 @@ export const InAppEditor = ({ uiSchema }: { uiSchema: UiSchema }) => {
               component: disableOutputSanitization.component,
             })}
         </div>
-        <div className="flex flex-col gap-1 rounded-xl border border-neutral-100 p-1">
+        <div className="flex flex-col gap-2 rounded-xl border border-neutral-100 p-2">
           {(avatar || subject) && (
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               {avatar && getComponentByType({ component: avatar.component })}
               {subject && getComponentByType({ component: subject.component })}
             </div>

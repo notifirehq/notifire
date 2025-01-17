@@ -165,7 +165,7 @@ function extractProps(template: any): { valid: boolean; props: string[]; error?:
     return {
       valid: false,
       props: [],
-      error: 'Invalid variable name containing whitespaces. Variables must follow the dot notation',
+      error: `contains whitespaces. Variables must follow the dot notation (e.g. payload.something)`,
     };
   }
 
@@ -187,7 +187,7 @@ function extractProps(template: any): { valid: boolean; props: string[]; error?:
     return {
       valid: false,
       props: [],
-      error: `Invalid variable name missing namespace. Variables must follow the dot notation (e.g. payload.${validProps[0]})`,
+      error: `missing namespace. Variables must follow the dot notation (e.g. payload.${validProps[0] === 'payload' ? 'something' : validProps[0]})`,
     };
   }
 

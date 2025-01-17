@@ -27,6 +27,7 @@ import { RiEdit2Line, RiExpandUpDownLine, RiForbid2Line } from 'react-icons/ri';
 import { CompactButton } from './primitives/button-compact';
 import { ControlInput } from './primitives/control-input';
 import { InputRoot, InputWrapper } from './primitives/input';
+import { z } from 'zod';
 
 const primaryActionKey = 'primaryAction';
 const secondaryActionKey = 'secondaryAction';
@@ -58,27 +59,28 @@ export const InAppActionDropdown = ({ onMenuItemClick }: { onMenuItemClick?: () 
                 size="2xs"
                 className="h-6 border-[1px] border-dashed shadow-none ring-0"
                 trailingIcon={RiForbid2Line}
+                tabIndex={-1}
               >
                 No action
               </Button>
             )}
             {primaryAction && (
-              <ConfigureActionPopover fields={{ actionKey: primaryActionKey }}>
-                <Button variant="primary" size="2xs" className="z-10 h-6">
-                  {primaryAction.label}
+              <ConfigureActionPopover title="Primary action" asChild fields={{ actionKey: primaryActionKey }}>
+                <Button variant="primary" size="2xs" className="z-10 h-6 min-w-16 max-w-48 truncate">
+                  {primaryAction.label || 'Primary action'}
                 </Button>
               </ConfigureActionPopover>
             )}
             {secondaryAction && (
-              <ConfigureActionPopover fields={{ actionKey: secondaryActionKey }}>
-                <Button variant="secondary" mode="outline" size="2xs" className="z-10 h-6">
-                  {secondaryAction.label}
+              <ConfigureActionPopover title="Secondary action" asChild fields={{ actionKey: secondaryActionKey }}>
+                <Button variant="secondary" mode="outline" size="2xs" className="z-10 h-6 min-w-16 max-w-48 truncate">
+                  {secondaryAction.label || 'Secondary action'}
                 </Button>
               </ConfigureActionPopover>
             )}
-            <DropdownMenuTrigger className="absolute size-full" />
+            <DropdownMenuTrigger className="absolute size-full" tabIndex={-1} />
           </div>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <CompactButton icon={RiExpandUpDownLine} size="lg" variant="ghost">
               <span className="sr-only">Actions</span>
             </CompactButton>
@@ -162,8 +164,11 @@ export const InAppActionDropdown = ({ onMenuItemClick }: { onMenuItemClick?: () 
   );
 };
 
-const ConfigureActionPopover = (props: ComponentProps<typeof PopoverTrigger> & { fields: { actionKey: string } }) => {
+const ConfigureActionPopover = (
+  props: ComponentProps<typeof PopoverTrigger> & { title: string; fields: { actionKey: string } }
+) => {
   const {
+    title,
     fields: { actionKey },
     ...rest
   } = props;
@@ -177,7 +182,7 @@ const ConfigureActionPopover = (props: ComponentProps<typeof PopoverTrigger> & {
       <PopoverContent className="max-w-72 overflow-visible" side="bottom" align="end">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 text-sm font-medium leading-none">
-            <RiEdit2Line className="size-4" /> Customize button
+            <RiEdit2Line className="size-4" /> {title}
           </div>
           <Separator />
           <FormField
@@ -191,16 +196,14 @@ const ConfigureActionPopover = (props: ComponentProps<typeof PopoverTrigger> & {
                 </div>
                 <FormControl>
                   <InputRoot className="overflow-visible" hasError={!!fieldState.error}>
-                    <InputWrapper className="flex h-9 items-center px-2.5">
-                      <ControlInput
-                        variables={variables}
-                        multiline={false}
-                        indentWithTab={false}
-                        placeholder="Button text"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </InputWrapper>
+                    <ControlInput
+                      variables={variables}
+                      multiline={false}
+                      indentWithTab={false}
+                      placeholder={title}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                   </InputRoot>
                 </FormControl>
                 <FormMessage />
@@ -211,7 +214,6 @@ const ConfigureActionPopover = (props: ComponentProps<typeof PopoverTrigger> & {
             <FormLabel className="mb-1">Redirect URL</FormLabel>
             <URLInput
               options={urlTargetTypes}
-              asEditor
               fields={{
                 urlKey: `${actionKey}.redirect.url`,
                 targetKey: `${actionKey}.redirect.target`,
