@@ -1,4 +1,5 @@
 import { autocompleteFooter, autocompleteHeader, functionIcon } from '@/components/primitives/constants';
+import { useDataRef } from '@/hooks/use-data-ref';
 import { tags as t } from '@lezer/highlight';
 import createTheme from '@uiw/codemirror-themes';
 import { EditorView, ReactCodeMirrorProps, useCodeMirror } from '@uiw/react-codemirror';
@@ -84,6 +85,7 @@ const baseTheme = (options: { multiline?: boolean }) =>
       alignItems: 'center',
       gap: '8px',
       padding: '4px',
+      fontFamily: 'JetBrains Mono, monospace',
       fontSize: '12px',
       fontWeight: '500',
       lineHeight: '16px',
@@ -101,6 +103,10 @@ const baseTheme = (options: { multiline?: boolean }) =>
     },
     '.cm-line span.cm-matchingBracket': {
       backgroundColor: 'hsl(var(--highlighted) / 0.1)',
+    },
+    // important to show the cursor at the beginning of the line
+    '.cm-line': {
+      marginLeft: '1px',
     },
     'div.cm-content': {
       padding: 0,
@@ -142,6 +148,7 @@ export const Editor = React.forwardRef<{ focus: () => void; blur: () => void }, 
     },
     ref
   ) => {
+    const onChangeRef = useDataRef(onChange);
     const editorRef = useRef<HTMLDivElement>(null);
     const [shouldFocus, setShouldFocus] = useState(false);
     const extensions = useMemo(
@@ -183,10 +190,10 @@ export const Editor = React.forwardRef<{ focus: () => void; blur: () => void }, 
         // which results in value not being updated and "jumping" effect in the editor
         // to prevent this we need to flush the state updates synchronously
         flushSync(() => {
-          onChange?.(value);
+          onChangeRef.current?.(value);
         });
       },
-      [onChange]
+      [onChangeRef]
     );
 
     const { setContainer, view } = useCodeMirror({

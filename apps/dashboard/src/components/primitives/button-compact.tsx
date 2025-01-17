@@ -1,10 +1,10 @@
 import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
+import { IconType } from 'react-icons';
 
 import { PolymorphicComponentProps } from '@/utils/polymorphic';
 import { recursiveCloneChildren } from '@/utils/recursive-clone-children';
 import { tv, type VariantProps } from '@/utils/tv';
-import { IconType } from 'react-icons';
 
 const COMPACT_BUTTON_ROOT_NAME = 'CompactButtonRoot';
 const COMPACT_BUTTON_ICON_NAME = 'CompactButtonIcon';

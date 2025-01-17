@@ -107,6 +107,11 @@ export const inputVariants = tv({
         wrapper: 'gap-1.5 px-2',
         input: 'h-8',
       },
+      '2xs': {
+        root: 'rounded-lg',
+        wrapper: 'gap-1.5 px-2',
+        input: 'h-7 text-paragraph-xs',
+      },
     },
     hasError: {
       true: {
@@ -147,17 +152,13 @@ export const inputVariants = tv({
 
 type InputSharedProps = VariantProps<typeof inputVariants>;
 
-function InputRoot({
-  className,
-  children,
-  size,
-  hasError,
-  asChild,
-  ...rest
-}: React.HTMLAttributes<HTMLDivElement> &
-  InputSharedProps & {
-    asChild?: boolean;
-  }) {
+const InputRoot = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> &
+    InputSharedProps & {
+      asChild?: boolean;
+    }
+>(({ className, children, size, hasError, asChild, ...rest }, ref) => {
   const uniqueId = React.useId();
   const Component = asChild ? Slot : 'div';
 
@@ -180,11 +181,11 @@ function InputRoot({
   );
 
   return (
-    <Component className={root({ class: className })} {...rest}>
+    <Component ref={ref} className={root({ class: className })} {...rest}>
       {extendedChildren}
     </Component>
   );
-}
+});
 InputRoot.displayName = INPUT_ROOT_NAME;
 
 function InputWrapper({

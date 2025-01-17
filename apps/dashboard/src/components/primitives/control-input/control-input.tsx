@@ -10,6 +10,7 @@ import { useVariables } from './hooks/use-variables';
 import { createVariableExtension } from './variable-plugin';
 import { variablePillTheme } from './variable-plugin/variable-theme';
 import { VariablePopover } from './variable-popover';
+import { cn } from '@/utils/ui';
 
 type CompletionRange = {
   from: number;
@@ -27,8 +28,6 @@ type ControlInputProps = {
   multiline?: boolean;
   indentWithTab?: boolean;
 };
-
-const baseExtensions = [EditorView.lineWrapping, variablePillTheme];
 
 export function ControlInput({
   value,
@@ -72,10 +71,10 @@ export function ControlInput({
     [handleVariableSelect]
   );
 
-  const extensions = useMemo(
-    () => [...baseExtensions, autocompletionExtension, variablePluginExtension],
-    [autocompletionExtension, variablePluginExtension]
-  );
+  const extensions = useMemo(() => {
+    const baseExtensions = [...(multiline ? [EditorView.lineWrapping] : []), variablePillTheme];
+    return [...baseExtensions, autocompletionExtension, variablePluginExtension];
+  }, [autocompletionExtension, variablePluginExtension, multiline]);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -93,7 +92,7 @@ export function ControlInput({
         multiline={multiline}
         indentWithTab={indentWithTab}
         size={size}
-        className="flex-1"
+        className={cn('flex-1', { 'overflow-hidden': !multiline })}
         autoFocus={autoFocus}
         placeholder={placeholder}
         id={id}
