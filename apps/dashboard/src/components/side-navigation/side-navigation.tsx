@@ -1,3 +1,9 @@
+import { SidebarContent } from '@/components/side-navigation/sidebar';
+import { useEnvironment } from '@/context/environment/hooks';
+import { useTelemetry } from '@/hooks/use-telemetry';
+import { buildRoute, ROUTES } from '@/utils/routes';
+import { TelemetryEvent } from '@/utils/telemetry';
+import * as Sentry from '@sentry/react';
 import { ReactNode, useMemo } from 'react';
 import {
   RiBarChartBoxLine,
@@ -9,20 +15,13 @@ import {
   RiStore3Line,
   RiUserAddLine,
 } from 'react-icons/ri';
-import { useEnvironment } from '@/context/environment/hooks';
-import { buildRoute, ROUTES } from '@/utils/routes';
-import { TelemetryEvent } from '@/utils/telemetry';
-import { useTelemetry } from '@/hooks/use-telemetry';
-import { EnvironmentDropdown } from './environment-dropdown';
-import { OrganizationDropdown } from './organization-dropdown';
-import { FreeTrialCard } from './free-trial-card';
-import { SubscribersStayTunedModal } from './subscribers-stay-tuned-modal';
-import { SidebarContent } from '@/components/side-navigation/sidebar';
-import { NavigationLink } from './navigation-link';
-import { GettingStartedMenuItem } from './getting-started-menu-item';
-import { ChangelogStack } from './changelog-cards';
 import { useFetchSubscription } from '../../hooks/use-fetch-subscription';
-import * as Sentry from '@sentry/react';
+import { ChangelogStack } from './changelog-cards';
+import { EnvironmentDropdown } from './environment-dropdown';
+import { FreeTrialCard } from './free-trial-card';
+import { GettingStartedMenuItem } from './getting-started-menu-item';
+import { NavigationLink } from './navigation-link';
+import { OrganizationDropdown } from './organization-dropdown';
 
 const NavigationGroup = ({ children, label }: { children: ReactNode; label?: string }) => {
   return (
@@ -68,14 +67,10 @@ export const SideNavigation = () => {
                 <RiRouteFill className="size-4" />
                 <span>Workflows</span>
               </NavigationLink>
-              <SubscribersStayTunedModal>
-                <span onClick={() => track(TelemetryEvent.SUBSCRIBERS_LINK_CLICKED)}>
-                  <NavigationLink>
-                    <RiGroup2Line className="size-4" />
-                    <span>Subscribers</span>
-                  </NavigationLink>
-                </span>
-              </SubscribersStayTunedModal>
+              <NavigationLink to={buildRoute(ROUTES.SUBSCRIBERS, { environmentSlug: currentEnvironment?.slug ?? '' })}>
+                <RiGroup2Line className="size-4" />
+                <span>Subscribers</span>
+              </NavigationLink>
             </NavigationGroup>
             <NavigationGroup label="Monitor">
               <NavigationLink
