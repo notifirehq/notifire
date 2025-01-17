@@ -1,5 +1,5 @@
-import { For, onCleanup, onMount } from 'solid-js';
-import { MountableElement, Portal } from 'solid-js/web';
+import { For, onCleanup, onMount, Show } from 'solid-js';
+import { isServer, MountableElement, Portal } from 'solid-js/web';
 import { NovuUI } from '..';
 import { Novu } from '../../novu';
 import type { NovuOptions } from '../../types';
@@ -74,51 +74,59 @@ export const Renderer = (props: RendererProps) => {
     });
   });
 
+  if (isServer) return null;
+
   return (
-    <NovuProvider options={props.options} novu={props.novu}>
-      <LocalizationProvider localization={props.localization}>
-        <AppearanceProvider id={props.novuUI.id} appearance={props.appearance}>
-          <FocusManagerProvider>
-            <InboxProvider tabs={props.tabs} preferencesFilter={props.preferencesFilter} routerPush={props.routerPush}>
-              <CountProvider>
-                <For each={nodes()}>
-                  {(node) => {
-                    const novuComponent = () => props.nodes.get(node)!;
-                    let portalDivElement: HTMLDivElement;
-                    const Component = novuComponents[novuComponent().name];
+    <Show when={typeof window !== 'undefined'}>
+      <NovuProvider options={props.options} novu={props.novu}>
+        <LocalizationProvider localization={props.localization}>
+          <AppearanceProvider id={props.novuUI.id} appearance={props.appearance}>
+            <FocusManagerProvider>
+              <InboxProvider
+                tabs={props.tabs}
+                preferencesFilter={props.preferencesFilter}
+                routerPush={props.routerPush}
+              >
+                <CountProvider>
+                  <For each={nodes()}>
+                    {(node) => {
+                      const novuComponent = () => props.nodes.get(node)!;
+                      let portalDivElement: HTMLDivElement;
+                      const Component = novuComponents[novuComponent().name];
 
-                    onMount(() => {
-                      /*
-                       * return here if not `<Notifications /> or `<Preferences />` since we only want to override some styles for those to work properly
-                       * due to the extra divs being introduces by the renderer/mounter
-                       */
-                      if (!['Notifications', 'Preferences'].includes(novuComponent().name)) return;
+                      onMount(() => {
+                        /*
+                         * return here if not `<Notifications /> or `<Preferences />` since we only want to override some styles for those to work properly
+                         * due to the extra divs being introduces by the renderer/mounter
+                         */
+                        if (!['Notifications', 'Preferences'].includes(novuComponent().name)) return;
 
-                      if (node instanceof HTMLElement) {
-                        node.classList.add('nt-h-full');
-                      }
-                      portalDivElement.classList.add('nt-h-full');
-                    });
+                        if (node instanceof HTMLElement) {
+                          node.classList.add('nt-h-full');
+                        }
+                        portalDivElement.classList.add('nt-h-full');
+                      });
 
-                    return (
-                      <Portal
-                        mount={node}
-                        ref={(el) => {
-                          portalDivElement = el;
-                        }}
-                      >
-                        <Root>
-                          <Component {...novuComponent().props} />
-                        </Root>
-                      </Portal>
-                    );
-                  }}
-                </For>
-              </CountProvider>
-            </InboxProvider>
-          </FocusManagerProvider>
-        </AppearanceProvider>
-      </LocalizationProvider>
-    </NovuProvider>
+                      return (
+                        <Portal
+                          mount={node}
+                          ref={(el) => {
+                            portalDivElement = el;
+                          }}
+                        >
+                          <Root>
+                            <Component {...novuComponent().props} />
+                          </Root>
+                        </Portal>
+                      );
+                    }}
+                  </For>
+                </CountProvider>
+              </InboxProvider>
+            </FocusManagerProvider>
+          </AppearanceProvider>
+        </LocalizationProvider>
+      </NovuProvider>
+    </Show>
   );
 };

@@ -38,6 +38,7 @@ const baseModuleConfig: Options = {
   entry: {
     index: './src/index.ts',
     'ui/index': './src/ui/index.ts',
+    'ui/server/index': './src/ui/server.ts',
     'themes/index': './src/ui/themes/index.ts',
     'internal/index': './src/ui/internal/index.ts',
   },

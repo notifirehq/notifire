@@ -8,6 +8,10 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
   "types": "dist/cjs/index.d.ts",
+  "browser": {
+    "./dist/esm/ui/server/index.mjs": "./dist/esm/ui/index.mjs",
+    "./dist/cjs/ui/server/index.js": "./dist/cjs/ui/index.js"
+  },
   "exports": {
     ".": {
       "import": {
@@ -22,11 +26,11 @@
     "./ui": {
       "import": {
         "types": "./dist/esm/ui/index.d.mts",
-        "default": "./dist/esm/ui/index.mjs"
+        "default": "./dist/esm/ui/server/index.mjs"
       },
       "require": {
         "types": "./dist/cjs/ui/index.d.ts",
-        "default": "./dist/cjs/ui/index.js"
+        "default": "./dist/cjs/ui/server/index.js"
       }
     },
     "./themes": {
@@ -131,7 +135,7 @@
     "mitt": "^3.0.1",
     "socket.io-client": "4.7.2",
     "solid-floating-ui": "^0.3.1",
-    "solid-js": "^1.8.11",
+    "solid-js": "^1.9.4",
     "solid-motionone": "^1.0.1",
     "tailwind-merge": "^2.4.0"
   },
@@ -139,5 +143,8 @@
     "tags": [
       "type:package"
     ]
+  },
+  "overrides": {
+    "vite": "5.4.10"
   }
 }

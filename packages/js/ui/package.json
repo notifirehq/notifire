@@ -1,5 +1,9 @@
 {
-  "main": "../dist/cjs/ui/index.cjs",
-  "module": "../dist/esm/ui/index.mjs",
-  "types": "../dist/cjs/ui/index.d.ts"
+  "main": "../dist/cjs/ui/server/index.js",
+  "module": "../dist/esm/ui/server/index.mjs",
+  "types": "../dist/cjs/ui/index.d.ts",
+  "browser": {
+    "../dist/esm/ui/server/index.mjs": "../dist/esm/ui/index.mjs",
+    "../dist/cjs/ui/server/index.js": "../dist/cjs/ui/index.js"
+  }
 }

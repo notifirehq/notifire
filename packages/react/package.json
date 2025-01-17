@@ -10,7 +10,11 @@
   "types": "dist/client/index.d.ts",
   "browser": {
     "./dist/server/server.js": "./dist/client/index.js",
-    "./dist/server/server.mjs": "./dist/client/index.mjs"
+    "./dist/server/server.mjs": "./dist/client/index.mjs",
+    "./dist/hooks/index.mjs": "./dist/hooks/index.mjs",
+    "./dist/themes/index.mjs": "./dist/themes/index.mjs",
+    "./dist/hooks/index.js": "./dist/hooks/index.js",
+    "./dist/themes/index.js": "./dist/themes/index.js"
   },
   "exports": {
     ".": {
@@ -100,5 +104,8 @@
     "tags": [
       "type:package"
     ]
+  },
+  "overrides": {
+    "vite": "5.4.10"
   }
 }

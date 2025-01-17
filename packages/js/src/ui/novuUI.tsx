@@ -1,5 +1,5 @@
 import { Accessor, Setter, ComponentProps, createSignal } from 'solid-js';
-import { MountableElement, render } from 'solid-js/web';
+import { isServer, MountableElement, render } from 'solid-js/web';
 import type { NovuOptions } from '../types';
 import { NovuComponent, NovuComponentName, novuComponents, Renderer } from './components/Renderer';
 import { generateRandomString } from './helpers';
@@ -69,7 +69,9 @@ export class NovuUI {
     this.#preferencesFilter = preferencesFilter;
     this.#setPreferencesFilter = setPreferencesFilter;
 
-    this.#mountComponentRenderer();
+    if (!isServer) {
+      this.#mountComponentRenderer();
+    }
   }
 
   #mountComponentRenderer(): void {
