@@ -1,20 +1,25 @@
+import React, { useCallback, useMemo } from 'react';
+import { flushSync } from 'react-dom';
+import { cva } from 'class-variance-authority';
 import { autocompleteFooter, autocompleteHeader, functionIcon } from '@/components/primitives/constants';
 import { tags as t } from '@lezer/highlight';
 import createTheme from '@uiw/codemirror-themes';
-import { EditorView, ReactCodeMirrorProps, useCodeMirror } from '@uiw/react-codemirror';
-import { cva, VariantProps } from 'class-variance-authority';
-import React, { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
+import {
+  default as CodeMirror,
+  EditorView,
+  ReactCodeMirrorProps,
+  type ReactCodeMirrorRef,
+} from '@uiw/react-codemirror';
 
-const editorVariants = cva('h-full w-full flex-1 [&_.cm-focused]:outline-none', {
+const variants = cva('h-full w-full flex-1 [&_.cm-focused]:outline-none', {
   variants: {
     size: {
-      default: 'text-xs [&_.cm-editor]:py-1',
-      lg: 'text-base [&_.cm-editor]:py-1',
+      base: 'text-base',
+      small: 'text-xs',
     },
   },
   defaultVariants: {
-    size: 'default',
+    size: 'small',
   },
 });
 
@@ -104,6 +109,8 @@ const baseTheme = (options: { multiline?: boolean }) =>
     },
     'div.cm-content': {
       padding: 0,
+      whiteSpace: 'preserve nowrap',
+      width: '1px', // Any width value would do to make the editor work exactly like an input when more text than its width is added
     },
     'div.cm-gutters': {
       backgroundColor: 'transparent',
@@ -112,42 +119,39 @@ const baseTheme = (options: { multiline?: boolean }) =>
     },
   });
 
-type EditorProps = {
+export type EditorProps = {
   value: string;
   multiline?: boolean;
   placeholder?: string;
   className?: string;
-  indentWithTab?: boolean;
   height?: string;
   onChange?: (value: string) => void;
   fontFamily?: 'inherit';
-} & ReactCodeMirrorProps &
-  VariantProps<typeof editorVariants>;
+  size?: 'small' | 'base';
+} & ReactCodeMirrorProps;
 
-export const Editor = React.forwardRef<{ focus: () => void; blur: () => void }, EditorProps>(
+export const Editor = React.forwardRef<ReactCodeMirrorRef, EditorProps>(
   (
     {
       value,
       placeholder,
       className,
       height,
-      size,
       multiline = false,
       fontFamily,
       onChange,
-      indentWithTab,
+      size = 'small',
       extensions: extensionsProp,
       basicSetup: basicSetupProp,
       ...restCodeMirrorProps
     },
     ref
   ) => {
-    const editorRef = useRef<HTMLDivElement>(null);
-    const [shouldFocus, setShouldFocus] = useState(false);
     const extensions = useMemo(
       () => [...(extensionsProp ?? []), baseTheme({ multiline })],
       [extensionsProp, multiline]
     );
+
     const basicSetup = useMemo(
       () => ({
         lineNumbers: false,
@@ -189,41 +193,22 @@ export const Editor = React.forwardRef<{ focus: () => void; blur: () => void }, 
       [onChange]
     );
 
-    const { setContainer, view } = useCodeMirror({
-      extensions,
-      height,
-      placeholder,
-      basicSetup,
-      container: editorRef.current,
-      indentWithTab,
-      value,
-      onChange: onChangeCallback,
-      theme,
-      ...restCodeMirrorProps,
-    });
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        focus: () => setShouldFocus(true),
-        blur: () => setShouldFocus(false),
-      }),
-      []
+    return (
+      <CodeMirror
+        ref={ref}
+        className={variants({ size, className })}
+        extensions={extensions}
+        height={height}
+        placeholder={placeholder}
+        basicSetup={basicSetup}
+        value={value}
+        onChange={onChangeCallback}
+        theme={theme}
+        onBlur={() => {
+          console.log('onBlur');
+        }}
+        {...restCodeMirrorProps}
+      />
     );
-
-    useEffect(() => {
-      if (editorRef.current) {
-        setContainer(editorRef.current);
-      }
-    }, [setContainer]);
-
-    useLayoutEffect(() => {
-      if (view && shouldFocus) {
-        view.focus();
-        setShouldFocus(false);
-      }
-    }, [shouldFocus, view]);
-
-    return <div ref={editorRef} className={editorVariants({ size, className })} />;
   }
 );

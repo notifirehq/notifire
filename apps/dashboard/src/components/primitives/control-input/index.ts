@@ -1,1 +1,1 @@
-export { ControlInput } from './control-input.tsx';
+export * from './control-input.tsx';
