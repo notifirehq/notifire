@@ -16,6 +16,7 @@ export interface IStoreQuery {
   feedIdentifier?: string | string[];
   seen?: boolean;
   read?: boolean;
+  archived?: boolean;
   limit?: number;
   payload?: Record<string, unknown>;
 }

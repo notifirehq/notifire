@@ -63,7 +63,13 @@ export class GetNotificationsFeed {
       command.environmentId,
       subscriber._id,
       ChannelTypeEnum.IN_APP,
-      { feedId: command.feedId, seen: command.query.seen, read: command.query.read, payload },
+      {
+        feedId: command.feedId,
+        seen: command.query.seen,
+        read: command.query.read,
+        archived: command.query.archived,
+        payload,
+      },
       {
         limit: command.limit,
         skip: command.page * command.limit,

@@ -25,6 +25,9 @@ export class GetInAppNotificationsFeedForSubscriberDto extends PaginationRequest
   read: boolean;
 
   @ApiPropertyOptional({ required: false, type: Boolean })
+  archived: boolean;
+
+  @ApiPropertyOptional({ required: false, type: Boolean })
   seen: boolean;
 
   @ApiPropertyOptional({
