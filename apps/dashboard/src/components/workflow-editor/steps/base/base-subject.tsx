@@ -23,17 +23,15 @@ export const BaseSubject = () => {
         <FormItem className="w-full">
           <FormControl>
             <InputRoot hasError={!!fieldState.error}>
-              <InputWrapper className="h-9 p-2.5">
-                <ControlInput
-                  multiline={false}
-                  indentWithTab={false}
-                  placeholder={capitalize(field.name)}
-                  id={field.name}
-                  value={field.value}
-                  onChange={field.onChange}
-                  variables={variables}
-                />
-              </InputWrapper>
+              <ControlInput
+                multiline={false}
+                indentWithTab={false}
+                placeholder={capitalize(field.name)}
+                id={field.name}
+                value={field.value}
+                onChange={field.onChange}
+                variables={variables}
+              />
             </InputRoot>
           </FormControl>
           <FormMessage />

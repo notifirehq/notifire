@@ -15,7 +15,7 @@ export const PushEditor = (props: PushEditorProps) => {
         <div className="flex items-center gap-2.5 text-sm font-medium">
           <span>Push template editor</span>
         </div>
-        <div className="rounded-12 flex flex-col gap-1 border border-neutral-100 p-1">
+        <div className="rounded-12 flex flex-col gap-2 border border-neutral-100 p-2">
           {getComponentByType({ component: subject.component })}
           {getComponentByType({ component: body.component })}
         </div>

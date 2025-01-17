@@ -13,7 +13,7 @@ export const ChatEditor = (props: ChatEditorProps) => {
     <div className="flex h-full flex-col">
       <TabsSection>
         <div className="flex items-center gap-2.5 text-sm font-medium">Chat template editor</div>
-        <div className="rounded-12 flex flex-col gap-1 border border-neutral-100 p-1">
+        <div className="rounded-12 flex flex-col gap-2 border border-neutral-100 p-2">
           {getComponentByType({ component: body.component })}
         </div>
       </TabsSection>
