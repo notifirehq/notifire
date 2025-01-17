@@ -1,6 +1,6 @@
 import { autocompletion } from '@codemirror/autocomplete';
 import { EditorView } from '@uiw/react-codemirror';
-import clsx from 'clsx';
+import { cn } from '@/utils/ui';
 
 import { Editor } from '@/components/primitives/editor';
 import { Popover, PopoverTrigger } from '@/components/primitives/popover';
@@ -90,7 +90,7 @@ export function ControlInput({
   );
 
   return (
-    <div className={clsx('relative h-full w-full p-2.5', className)}>
+    <div className={cn('relative h-full w-full p-2.5', className)}>
       <Editor
         size={size}
         fontFamily="inherit"
@@ -102,7 +102,6 @@ export function ControlInput({
         extensions={extensions}
         value={value}
         onChange={onChange}
-        className="flex-1"
       />
       <Popover open={!!selectedVariable} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>

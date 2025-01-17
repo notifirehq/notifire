@@ -10,7 +10,7 @@ const HINT_ICON_NAME = 'HintIcon';
 export const hintVariants = tv({
   slots: {
     root: 'group flex items-center gap-1 text-paragraph-xs text-text-sub',
-    icon: 'size-4 shrink-0 text-text-soft',
+    icon: 'size-4 shrink-0 text-text-soft self-start',
   },
   variants: {
     disabled: {
