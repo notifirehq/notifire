@@ -27,6 +27,7 @@ import { RiEdit2Line, RiExpandUpDownLine, RiForbid2Line } from 'react-icons/ri';
 import { CompactButton } from './primitives/button-compact';
 import { ControlInput } from './primitives/control-input';
 import { InputRoot, InputWrapper } from './primitives/input';
+import { z } from 'zod';
 
 const primaryActionKey = 'primaryAction';
 const secondaryActionKey = 'secondaryAction';
@@ -58,6 +59,7 @@ export const InAppActionDropdown = ({ onMenuItemClick }: { onMenuItemClick?: () 
                 size="2xs"
                 className="h-6 border-[1px] border-dashed shadow-none ring-0"
                 trailingIcon={RiForbid2Line}
+                tabIndex={-1}
               >
                 No action
               </Button>
@@ -76,7 +78,7 @@ export const InAppActionDropdown = ({ onMenuItemClick }: { onMenuItemClick?: () 
                 </Button>
               </ConfigureActionPopover>
             )}
-            <DropdownMenuTrigger className="absolute size-full" />
+            <DropdownMenuTrigger className="absolute size-full" tabIndex={-1} />
           </div>
           <DropdownMenuTrigger asChild>
             <CompactButton icon={RiExpandUpDownLine} size="lg" variant="ghost">
