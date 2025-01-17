@@ -101,6 +101,7 @@ export class BuildStepIssuesUsecase {
 
           issues.controls[controlKey] = liquidTemplateIssues.invalidVariables.map((error) => {
             const message = error.message ? error.message.split(' line:')[0] : '';
+
             return {
               message: `Variable ${error.output} ${message}`.trim(),
               issueType: StepContentIssueEnum.ILLEGAL_VARIABLE_IN_CONTROL_VALUE,
