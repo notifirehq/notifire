@@ -94,6 +94,7 @@ export class PostmarkEmailProvider
             attachment.name,
             attachment.file.toString('base64'),
             attachment.mime,
+            attachment.cid,
           ),
       ),
     };
