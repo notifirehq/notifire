@@ -2,13 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { addBreadcrumb } from '@sentry/node';
 import { ModuleRef } from '@nestjs/core';
 
-import {
-  MessageRepository,
-  NotificationStepEntity,
-  SubscriberRepository,
-  MessageEntity,
-  IntegrationEntity,
-} from '@novu/dal';
+import { MessageRepository, SubscriberRepository, MessageEntity, IntegrationEntity } from '@novu/dal';
 import { ChannelTypeEnum, LogCodeEnum, ExecutionDetailsSourceEnum, ExecutionDetailsStatusEnum } from '@novu/shared';
 import {
   InstrumentUsecase,
@@ -276,6 +270,9 @@ export class SendMessageSms extends SendMessageBase {
         throw new PlatformException(`Sms handler for provider ${integration.providerId} is  not found`);
       }
       const bridgeProviderData = command.bridgeData?.providers?.[integration.providerId] || {};
+      const triggerOverrides = command.step.stepId
+        ? command.overrides?.steps?.[command.step.stepId]?.providers[integration.providerId] || {}
+        : {};
 
       const result = await smsHandler.send({
         to: overrides.to || phone,
@@ -283,7 +280,7 @@ export class SendMessageSms extends SendMessageBase {
         content: bridgeBody || overrides.content || content,
         id: message._id,
         customData: overrides.customData || {},
-        bridgeProviderData,
+        bridgeProviderData: { ...bridgeProviderData, ...triggerOverrides },
       });
 
       await this.executionLogRoute.execute(

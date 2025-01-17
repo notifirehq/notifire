@@ -5,7 +5,6 @@ import { addBreadcrumb } from '@sentry/node';
 
 import {
   MessageRepository,
-  NotificationStepEntity,
   SubscriberRepository,
   EnvironmentRepository,
   IntegrationEntity,
@@ -440,9 +439,15 @@ export class SendMessageEmail extends SendMessageBase {
     const mailFactory = new MailFactory();
     const mailHandler = mailFactory.getHandler(this.buildFactoryIntegration(integration), mailData.from);
     const bridgeProviderData = command.bridgeData?.providers?.[integration.providerId] || {};
+    const triggerOverrides = command.step.stepId
+      ? command.overrides?.steps?.[command.step.stepId]?.providers[integration.providerId] || {}
+      : {};
 
     try {
-      const result = await mailHandler.send({ ...mailData, bridgeProviderData });
+      const result = await mailHandler.send({
+        ...mailData,
+        bridgeProviderData: { ...bridgeProviderData, ...triggerOverrides },
+      });
 
       Logger.verbose({ command }, 'Email message has been sent', LOG_CONTEXT);
 

@@ -2,14 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { addBreadcrumb } from '@sentry/node';
 import { ModuleRef } from '@nestjs/core';
 
-import {
-  MessageRepository,
-  NotificationStepEntity,
-  SubscriberRepository,
-  MessageEntity,
-  IntegrationEntity,
-  JobEntity,
-} from '@novu/dal';
+import { MessageRepository, SubscriberRepository, MessageEntity, IntegrationEntity, JobEntity } from '@novu/dal';
 import {
   ChannelTypeEnum,
   LogCodeEnum,
@@ -298,6 +291,9 @@ export class SendMessagePush extends SendMessageBase {
       const pushHandler = this.getIntegrationHandler(integration);
       const bridgeOutputs = command.bridgeData?.outputs;
       const bridgeProviderData = command.bridgeData?.providers?.[integration.providerId] || {};
+      const triggerOverrides = command.step.stepId
+        ? command.overrides?.steps?.[command.step.stepId]?.providers[integration.providerId] || {}
+        : {};
 
       const result = await pushHandler.send({
         target: [deviceToken],
@@ -307,7 +303,7 @@ export class SendMessagePush extends SendMessageBase {
         overrides,
         subscriber,
         step,
-        bridgeProviderData,
+        bridgeProviderData: { ...bridgeProviderData, ...triggerOverrides },
       });
 
       await this.executionLogRoute.execute(

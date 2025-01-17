@@ -6,6 +6,7 @@ import {
   TriggerRecipientsTypeEnum,
   TriggerRecipientSubscriber,
   TriggerTenantContext,
+  TriggerOverrides,
 } from '@novu/shared';
 import { CreateSubscriberRequestDto } from '../../subscribers/dtos';
 import { UpdateTenantRequestDto } from '../../tenant/dtos';
@@ -99,7 +100,7 @@ export class TriggerEventRequestDto {
   })
   @IsObject()
   @IsOptional()
-  overrides?: Record<string, Record<string, unknown>>;
+  overrides?: TriggerOverrides;
 
   @ApiProperty({
     description: 'The recipients list of people who will receive the notification.',
