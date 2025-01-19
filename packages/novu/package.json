@@ -86,7 +86,7 @@
     "validate-npm-package-name": "3.0.0",
     "prompts": "2.4.2",
     "@types/cross-spawn": "6.0.0",
-    "cross-spawn": "7.0.5",
+    "cross-spawn": "7.0.6",
     "fast-glob": "3.3.1",
     "async-sema": "3.0.1"
   },
