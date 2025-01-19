@@ -1,7 +1,10 @@
-import { CreateWorkflowButton } from '@/components/create-workflow-button';
+import { useTelemetry } from '@/hooks/use-telemetry';
+import { TelemetryEvent } from '@/utils/telemetry';
 import { Calendar, Code2, ExternalLink, FileCode2, FileText, KeyRound, LayoutGrid, Users } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ReactNode } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { buildRoute, ROUTES } from '../../utils/routes';
 import { Badge } from '../primitives/badge';
 import { WorkflowMode } from './types';
 
@@ -17,10 +20,8 @@ interface SidebarButtonProps {
   onClick?: () => void;
   isActive?: boolean;
   bgColor?: string;
-  asChild?: boolean;
   hasExternalLink?: boolean;
   beta?: boolean;
-  createWorkflowButton?: React.ComponentType<any>;
 }
 
 const buttonVariants = {
@@ -40,12 +41,9 @@ function SidebarButton({
   onClick,
   isActive,
   bgColor = 'bg-blue-50',
-  asChild,
   beta,
   hasExternalLink,
-  createWorkflowButton: CustomCreateWorkflowButton,
 }: SidebarButtonProps) {
-  const ButtonWrapper = asChild && CustomCreateWorkflowButton ? CustomCreateWorkflowButton : motion.button;
   const content = (
     <div className="flex items-center gap-3">
       <motion.div variants={iconVariants} className={`rounded-lg p-[5px] ${bgColor}`}>
@@ -61,7 +59,7 @@ function SidebarButton({
   );
 
   return (
-    <ButtonWrapper
+    <motion.button
       variants={buttonVariants}
       initial="initial"
       whileHover="hover"
@@ -72,19 +70,15 @@ function SidebarButton({
         isActive ? '!border-[#EEEFF1] bg-white' : ''
       }`}
     >
-      {asChild ? (
-        content
-      ) : (
-        <div className="flex w-full items-center gap-2">
-          {content}{' '}
-          {beta && (
-            <Badge color="gray" size="sm">
-              BETA
-            </Badge>
-          )}
-        </div>
-      )}
-    </ButtonWrapper>
+      <div className="flex w-full items-center gap-2">
+        {content}{' '}
+        {beta && (
+          <Badge color="gray" size="sm">
+            BETA
+          </Badge>
+        )}
+      </div>
+    </motion.button>
   );
 }
 
@@ -115,44 +109,46 @@ const useCases = [
   },
 ] as const;
 
-const createOptions = [
-  {
-    icon: <FileText className="h-3 w-3 text-gray-700" />,
-    label: 'Blank workflow',
-    bgColor: 'bg-green-50',
-    asChild: true,
-  },
-  {
-    icon: <Code2 className="h-3 w-3 text-gray-700" />,
-    label: 'Code-based workflow',
-    hasExternalLink: true,
-    bgColor: 'bg-blue-50',
-    onClick: () => window.open('https://docs.novu.co/framework/overview', '_blank'),
-  },
-];
-
 export function WorkflowSidebar({ selectedCategory, onCategorySelect, mode }: WorkflowSidebarProps) {
+  const navigate = useNavigate();
+  const { environmentSlug } = useParams();
+  const track = useTelemetry();
+
+  const handleCreateWorkflow = () => {
+    track(TelemetryEvent.CREATE_WORKFLOW_CLICK);
+    navigate(buildRoute(ROUTES.WORKFLOWS_CREATE, { environmentSlug: environmentSlug || '' }));
+  };
+
+  const createOptions = [
+    {
+      icon: <FileText className="h-3 w-3 text-gray-700" />,
+      label: 'Blank workflow',
+      bgColor: 'bg-green-50',
+      onClick: handleCreateWorkflow,
+    },
+    {
+      icon: <Code2 className="h-3 w-3 text-gray-700" />,
+      label: 'Code-based workflow',
+      hasExternalLink: true,
+      bgColor: 'bg-blue-50',
+      onClick: () => window.open('https://docs.novu.co/framework/overview', '_blank'),
+    },
+  ];
+
   return (
-    <div className="flex h-full flex-col bg-gray-50">
-      <section className="p-2">
-        <div className="mb-2">
-          <span className="text-subheading-2xs text-gray-500">CREATE</span>
-        </div>
-        <div className="flex flex-col gap-2">
-          {createOptions.map((item, index) => (
-            <SidebarButton
-              key={index}
-              icon={item.icon}
-              label={item.label}
-              onClick={item.onClick}
-              bgColor={item.bgColor}
-              asChild={item.asChild}
-              hasExternalLink={item.hasExternalLink}
-              createWorkflowButton={CreateWorkflowButton}
-            />
-          ))}
-        </div>
-      </section>
+    <div className="flex h-full w-[240px] flex-col gap-4 border-r p-2">
+      <div className="flex flex-col gap-1">
+        {createOptions.map((item, index) => (
+          <SidebarButton
+            key={index}
+            icon={item.icon}
+            label={item.label}
+            onClick={item.onClick}
+            bgColor={item.bgColor}
+            hasExternalLink={item.hasExternalLink}
+          />
+        ))}
+      </div>
       <section className="p-2">
         <div className="mb-2">
           <span className="text-subheading-2xs text-gray-500">EXPLORE</span>
@@ -167,7 +163,6 @@ export function WorkflowSidebar({ selectedCategory, onCategorySelect, mode }: Wo
               onClick={() => onCategorySelect(item.id)}
               isActive={mode === WorkflowMode.TEMPLATES && selectedCategory === item.id}
               bgColor={item.bgColor}
-              createWorkflowButton={CreateWorkflowButton}
             />
           ))}
         </div>

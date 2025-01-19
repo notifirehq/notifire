@@ -11,12 +11,21 @@ import {
 } from '@/components/primitives/table';
 import { WorkflowListEmpty } from '@/components/workflow-list-empty';
 import { WorkflowRow } from '@/components/workflow-row';
-import { useFetchWorkflows } from '@/hooks/use-fetch-workflows';
 import { RiMore2Fill } from 'react-icons/ri';
 import { createSearchParams, useLocation, useSearchParams } from 'react-router-dom';
 import { ServerErrorPage } from './shared/server-error-page';
 
-export function WorkflowList() {
+interface WorkflowListProps {
+  data?: {
+    workflows: any[];
+    totalCount: number;
+  };
+  isPending?: boolean;
+  isError?: boolean;
+  limit?: number;
+}
+
+export function WorkflowList({ data, isPending, isError, limit = 12 }: WorkflowListProps) {
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
@@ -28,21 +37,18 @@ export function WorkflowList() {
   };
 
   const offset = parseInt(searchParams.get('offset') || '0');
-  const limit = parseInt(searchParams.get('limit') || '12');
-
-  const { data, isPending, isError, currentPage, totalPages } = useFetchWorkflows({
-    limit,
-    offset,
-  });
 
   if (isError) return <ServerErrorPage />;
 
-  if (!isPending && data.totalCount === 0) {
+  if (!isPending && data?.totalCount === 0) {
     return <WorkflowListEmpty />;
   }
 
+  const currentPage = Math.floor(offset / limit) + 1;
+  const totalPages = Math.ceil((data?.totalCount || 0) / limit);
+
   return (
-    <div className="flex h-full flex-col px-2.5 py-2">
+    <div className="flex h-full flex-col">
       <Table>
         <TableHeader>
           <TableRow>
@@ -82,11 +88,7 @@ export function WorkflowList() {
               ))}
             </>
           ) : (
-            <>
-              {data.workflows.map((workflow) => (
-                <WorkflowRow key={workflow._id} workflow={workflow} />
-              ))}
-            </>
+            <>{data?.workflows.map((workflow) => <WorkflowRow key={workflow._id} workflow={workflow} />)}</>
           )}
         </TableBody>
         {data && limit < data.totalCount && (

@@ -29,6 +29,9 @@ export const ROUTES = {
   INTEGRATIONS_UPDATE: '/integrations/:integrationId/update',
   API_KEYS: '/env/:environmentSlug/api-keys',
   ACTIVITY_FEED: '/env/:environmentSlug/activity-feed',
+  TEMPLATE_STORE: '/env/:environmentSlug/workflows/templates',
+  WORKFLOWS_CREATE: '/env/:environmentSlug/workflows/create',
+  TEMPLATE_STORE_CREATE_WORKFLOW: '/env/:environmentSlug/workflows/templates/:templateId',
 } as const;
 
 export const buildRoute = (route: string, params: Record<string, string>) => {

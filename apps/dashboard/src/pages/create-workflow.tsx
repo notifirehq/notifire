@@ -8,23 +8,28 @@ import {
   SheetHeader,
   SheetMain,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/primitives/sheet';
 import { ExternalLink } from '@/components/shared/external-link';
 import { CreateWorkflowForm } from '@/components/workflow-editor/create-workflow-form';
 import { useCreateWorkflow } from '@/hooks/use-create-workflow';
-import { ComponentProps, forwardRef, useState } from 'react';
 import { RiArrowRightSLine } from 'react-icons/ri';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export const CreateWorkflowButton = forwardRef<HTMLButtonElement, ComponentProps<typeof SheetTrigger>>((props, ref) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { submit, isLoading: isCreating } = useCreateWorkflow({
-    onSuccess: () => setIsOpen(false),
-  });
+export function CreateWorkflowPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { submit, isLoading: isCreating } = useCreateWorkflow();
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger ref={ref} {...props} />
+    <Sheet
+      open={true}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          navigate(`..${location.search}`);
+        }
+      }}
+    >
       <SheetContent onOpenAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader>
           <SheetTitle>Create workflow</SheetTitle>
@@ -55,6 +60,4 @@ export const CreateWorkflowButton = forwardRef<HTMLButtonElement, ComponentProps
       </SheetContent>
     </Sheet>
   );
-});
-
-CreateWorkflowButton.displayName = 'CreateWorkflowButton';
+}
