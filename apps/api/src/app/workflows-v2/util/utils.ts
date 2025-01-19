@@ -6,8 +6,8 @@ import isObject from 'lodash/isObject';
 import reduce from 'lodash/reduce';
 import values from 'lodash/values';
 
-import { JSONSchemaDto } from '@novu/shared';
 import { MAILY_ITERABLE_MARK } from '@novu/application-generic';
+import { JSONSchemaDto } from '@novu/shared';
 
 export function findMissingKeys(requiredRecord: object, actualRecord: object) {
   const requiredKeys = collectKeys(requiredRecord);
