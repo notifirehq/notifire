@@ -16,9 +16,9 @@ export class SupportController {
   ) {}
 
   @UseGuards(PlainCardsGuard)
-  @Post('user-organizations')
+  @Post('customer-details')
   async fetchUserOrganizations(@Body() body: PlainCardRequestDto) {
-    return this.plainCardsUsecase.fetchUserOrganizations(PlainCardsCommand.create({ ...body }));
+    return this.plainCardsUsecase.fetchCustomerDetails(PlainCardsCommand.create({ ...body }));
   }
 
   @UseGuards(UserAuthGuard)

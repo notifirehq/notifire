@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { PLAIN_SUPPORT_CHAT_APP_ID } from '@/config';
 import * as Sentry from '@sentry/react';
 import { useAuth } from '@/context/auth/hooks';
-import { useBootIntercom } from './use-boot-intercom';
 
 // Add type declaration for Plain chat widget
 declare global {
@@ -20,8 +19,6 @@ export const usePlainChat = () => {
 
   const isLiveChatVisible = currentUser?.servicesHashes?.plain && PLAIN_SUPPORT_CHAT_APP_ID !== undefined;
 
-  useBootIntercom();
-
   useEffect(() => {
     if (isFirstRender && isLiveChatVisible) {
       try {
@@ -31,6 +28,7 @@ export const usePlainChat = () => {
           hideBranding: true,
           title: 'Chat with us',
           customerDetails: {
+            fullName: `${currentUser.firstName} ${currentUser.lastName}`,
             email: currentUser?.email,
             emailHash: currentUser?.servicesHashes?.plain,
             externalId: currentUser?._id,

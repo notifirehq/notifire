@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@clerk/backend": "^1.6.2",
-    "@clerk/clerk-sdk-node": "^5.0.19",
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@novu/application-generic": "workspace:*",
     "@novu/dal": "workspace:*",
     "@novu/shared": "workspace:*",
