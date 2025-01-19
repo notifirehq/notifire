@@ -23,4 +23,10 @@ export type ClientOptions = {
    * Defaults to true.
    */
   strictAuthentication?: boolean;
+
+  /**
+   * Additional fetch options to be passed to the fetch API.
+   * This can be used to set custom agent, headers, etc.
+   */
+  fetchOptions?: Record<string, any>;
 };

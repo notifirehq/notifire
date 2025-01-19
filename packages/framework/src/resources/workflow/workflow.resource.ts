@@ -36,7 +36,7 @@ export function workflow<
   const options = workflowOptions || {};
 
   const trigger: Workflow<T_PayloadUnvalidated>['trigger'] = async (event) => {
-    const apiClient = initApiClient(resolveSecretKey(event.secretKey), resolveApiUrl(event.apiUrl));
+    const apiClient = initApiClient(resolveSecretKey(event.secretKey), resolveApiUrl(event.apiUrl), event.fetchOptions);
 
     const unvalidatedData = (event.payload || {}) as T_PayloadUnvalidated;
     let validatedData: T_PayloadValidated;

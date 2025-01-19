@@ -72,7 +72,7 @@ export class NovuRequestHandler<Input extends any[] = any[], Output = any> {
     this.handler = options.handler;
     this.client = options.client ? options.client : new Client();
     this.workflows = options.workflows;
-    this.http = initApiClient(this.client.secretKey, this.client.apiUrl);
+    this.http = initApiClient(this.client.secretKey, this.client.apiUrl, this.client.fetchOptions);
     this.frameworkName = options.frameworkName;
     this.hmacEnabled = this.client.strictAuthentication;
   }
