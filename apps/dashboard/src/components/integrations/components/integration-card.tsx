@@ -3,15 +3,10 @@ import { Button } from '@/components/primitives/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/primitives/tooltip';
 import { ROUTES } from '@/utils/routes';
 import { ChannelTypeEnum, type IEnvironment, type IIntegration, type IProviderConfig } from '@novu/shared';
-import {
-  RiCheckboxCircleFill,
-  RiCloseCircleFill,
-  RiGitBranchFill,
-  RiSettings4Line,
-  RiStarSmileLine,
-} from 'react-icons/ri';
+import { RiCheckboxCircleFill, RiCloseCircleFill, RiSettings4Line, RiStarSmileLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../../utils/ui';
+import { EnvironmentBranchIcon } from '../../primitives/environment-branch-icon';
 import { StatusBadge, StatusBadgeIcon } from '../../primitives/status-badge';
 import { TableIntegration } from '../types';
 import { ProviderIcon } from './provider-icon';
@@ -115,9 +110,7 @@ export function IntegrationCard({ integration, provider, environment, onClick }:
           </StatusBadge>
         )}
         <StatusBadge variant="stroke" status="pending" className="gap-1 shadow-none">
-          <RiGitBranchFill
-            className={cn('h-4 w-4', environment.name.toLowerCase() === 'production' ? 'text-feature' : 'text-warning')}
-          />
+          <EnvironmentBranchIcon size="xs" environment={environment} mode="ghost" />
           {environment.name}
         </StatusBadge>
       </div>

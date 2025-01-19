@@ -1,20 +1,19 @@
-import { useForm, useWatch } from 'react-hook-form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/primitives/accordion';
 import { Form } from '@/components/primitives/form/form';
 import { Label } from '@/components/primitives/label';
 import { Separator } from '@/components/primitives/separator';
-import { RiGitBranchLine, RiInputField } from 'react-icons/ri';
+import { useAuth } from '@/context/auth/hooks';
+import { useEnvironment, useFetchEnvironments } from '@/context/environment/hooks';
 import { IIntegration, IProviderConfig } from '@novu/shared';
 import { useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { RiInputField } from 'react-icons/ri';
 import { InlineToast } from '../../../components/primitives/inline-toast';
-import { SegmentedControl, SegmentedControlList } from '../../../components/primitives/segmented-control';
-import { SegmentedControlTrigger } from '../../../components/primitives/segmented-control';
-import { useEnvironment, useFetchEnvironments } from '@/context/environment/hooks';
-import { useAuth } from '@/context/auth/hooks';
-import { GeneralSettings } from './integration-general-settings';
-import { CredentialsSection } from './integration-credentials';
-import { isDemoIntegration } from './utils/helpers';
 import { cn } from '../../../utils/ui';
+import { EnvironmentDropdown } from '../../side-navigation/environment-dropdown';
+import { CredentialsSection } from './integration-credentials';
+import { GeneralSettings } from './integration-general-settings';
+import { isDemoIntegration } from './utils/helpers';
 
 type IntegrationFormData = {
   name: string;
@@ -96,24 +95,20 @@ export function IntegrationConfiguration({
           <Label className="text-sm" htmlFor="environmentId">
             Environment
           </Label>
-          <SegmentedControl
-            value={environmentId}
-            onValueChange={(value) => setValue('environmentId', value)}
-            className={cn('w-full', mode === 'update' ? 'max-w-[160px]' : 'max-w-[260px]')}
-          >
-            <SegmentedControlList>
-              {environments
-                ?.filter((env) => (mode === 'update' ? env._id === integration?._environmentId : true))
-                .map((env) => (
-                  <SegmentedControlTrigger key={env._id} value={env._id} disabled={mode === 'update'}>
-                    <RiGitBranchLine
-                      className={`size-4 ${env.name.toLowerCase() === 'production' ? 'text-feature' : 'text-warning'}`}
-                    />
-                    {env.name}
-                  </SegmentedControlTrigger>
-                ))}
-            </SegmentedControlList>
-          </SegmentedControl>
+          <div className={cn('w-full', mode === 'update' ? 'max-w-[160px]' : 'max-w-[260px]')}>
+            <EnvironmentDropdown
+              className="w-full shadow-none"
+              disabled={mode === 'update'}
+              currentEnvironment={environments?.find((env) => env._id === environmentId)}
+              data={environments}
+              onChange={(value) => {
+                const env = environments?.find((env) => env.name === value);
+                if (env) {
+                  setValue('environmentId', env._id);
+                }
+              }}
+            />
+          </div>
         </div>
 
         <Accordion type="single" collapsible defaultValue="layout" className="p-3">

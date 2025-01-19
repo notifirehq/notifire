@@ -28,6 +28,7 @@ export const ROUTES = {
   INTEGRATIONS_CONNECT_PROVIDER: '/integrations/connect/:providerId',
   INTEGRATIONS_UPDATE: '/integrations/:integrationId/update',
   API_KEYS: '/env/:environmentSlug/api-keys',
+  ENVIRONMENTS: '/env/:environmentSlug/environments',
   ACTIVITY_FEED: '/env/:environmentSlug/activity-feed',
 } as const;
 

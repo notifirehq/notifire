@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { EnvironmentEntity, EnvironmentRepository } from '@novu/dal';
 import { UpdateEnvironmentCommand } from './update-environment.command';
 
@@ -7,6 +7,15 @@ export class UpdateEnvironment {
   constructor(private environmentRepository: EnvironmentRepository) {}
 
   async execute(command: UpdateEnvironmentCommand) {
+    const environment = await this.environmentRepository.findOne({
+      _id: command.environmentId,
+      _organizationId: command.organizationId,
+    });
+
+    if (!environment) {
+      throw new UnauthorizedException('Environment not found');
+    }
+
     const updatePayload: Partial<EnvironmentEntity> = {};
 
     if (command.name && command.name !== '') {
@@ -18,6 +27,10 @@ export class UpdateEnvironment {
 
     if (command.identifier && command.name !== '') {
       updatePayload.identifier = command.identifier;
+    }
+
+    if (command.color) {
+      updatePayload.color = command.color;
     }
 
     if (command.dns && command.dns.inboundParseDomain && command.dns.inboundParseDomain !== '') {

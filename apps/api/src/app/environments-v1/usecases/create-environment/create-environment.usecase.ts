@@ -1,13 +1,16 @@
-import { nanoid } from 'nanoid';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { createHash } from 'crypto';
+import { nanoid } from 'nanoid';
 
-import { EnvironmentRepository, NotificationGroupRepository } from '@novu/dal';
 import { encryptApiKey } from '@novu/application-generic';
+import { EnvironmentRepository, NotificationGroupRepository } from '@novu/dal';
 
-import { CreateEnvironmentCommand } from './create-environment.command';
-import { GenerateUniqueApiKey } from '../generate-unique-api-key/generate-unique-api-key.usecase';
+import { EnvironmentEnum, PROTECTED_ENVIRONMENTS } from '@novu/shared';
+import { CreateNovuIntegrationsCommand } from '../../../integrations/usecases/create-novu-integrations/create-novu-integrations.command';
+import { CreateNovuIntegrations } from '../../../integrations/usecases/create-novu-integrations/create-novu-integrations.usecase';
 import { CreateDefaultLayout, CreateDefaultLayoutCommand } from '../../../layouts/usecases';
+import { GenerateUniqueApiKey } from '../generate-unique-api-key/generate-unique-api-key.usecase';
+import { CreateEnvironmentCommand } from './create-environment.command';
 
 @Injectable()
 export class CreateEnvironment {
@@ -15,10 +18,36 @@ export class CreateEnvironment {
     private environmentRepository: EnvironmentRepository,
     private notificationGroupRepository: NotificationGroupRepository,
     private generateUniqueApiKey: GenerateUniqueApiKey,
-    private createDefaultLayoutUsecase: CreateDefaultLayout
+    private createDefaultLayoutUsecase: CreateDefaultLayout,
+    private createNovuIntegrationsUsecase: CreateNovuIntegrations
   ) {}
 
   async execute(command: CreateEnvironmentCommand) {
+    const environmentCount = await this.environmentRepository.count({
+      _organizationId: command.organizationId,
+    });
+
+    if (environmentCount >= 10) {
+      throw new BadRequestException('Organization cannot have more than 10 environments');
+    }
+
+    if (!command.system) {
+      const { name } = command;
+
+      if (PROTECTED_ENVIRONMENTS.includes(name as EnvironmentEnum)) {
+        throw new UnprocessableEntityException('Environment name cannot be Development or Production');
+      }
+
+      const environment = await this.environmentRepository.findOne({
+        _organizationId: command.organizationId,
+        name,
+      });
+
+      if (environment) {
+        throw new BadRequestException('Environment name must be unique');
+      }
+    }
+
     const key = await this.generateUniqueApiKey.execute();
     const encryptedApiKey = encryptApiKey(key);
     const hashedApiKey = createHash('sha256').update(key).digest('hex');
@@ -28,6 +57,7 @@ export class CreateEnvironment {
       name: command.name,
       identifier: nanoid(12),
       _parentId: command.parentEnvironmentId,
+      color: this.getEnvironmentColor(command.name, command.color),
       apiKeys: [
         {
           key: encryptedApiKey,
@@ -67,6 +97,21 @@ export class CreateEnvironment {
       });
     }
 
+    await this.createNovuIntegrationsUsecase.execute(
+      CreateNovuIntegrationsCommand.create({
+        environmentId: environment._id,
+        organizationId: environment._organizationId,
+        userId: command.userId,
+      })
+    );
+
     return environment;
+  }
+
+  private getEnvironmentColor(name: string, commandColor?: string): string | undefined {
+    if (name === EnvironmentEnum.DEVELOPMENT) return '#ff8547';
+    if (name === EnvironmentEnum.PRODUCTION) return '#7e52f4';
+
+    return commandColor;
   }
 }
